@@ -25,7 +25,7 @@ public class UserController {
 
     private final IUserService iUserService;
 
-    @PostMapping("/users/register")
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserRequestDTO userRequestDTO) throws UserAlreadyExistsException {
         UserResponseDTO responseDTO = iUserService.registerUser(userRequestDTO);
         return ResponseEntity.status(201).body(responseDTO);
