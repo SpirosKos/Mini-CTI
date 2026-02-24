@@ -1,3 +1,0 @@
-2026-02-21 20:23:17 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-02-21 20:23:18 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1b2ac7d9
-2026-02-21 20:23:18 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
