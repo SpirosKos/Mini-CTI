@@ -2,6 +2,7 @@ package com.mini.cti.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
+@MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -21,11 +23,11 @@ import java.time.Instant;
 public abstract class AbstractEntity {
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMPTZ")
     private Instant createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME")
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
     private Instant updatedAt;
 
 }
