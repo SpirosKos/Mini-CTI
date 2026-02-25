@@ -28,14 +28,14 @@ public class JwtUtil {
                 .compact();
     }
 
-    public boolean validateKey(String token){
+    public boolean validateToken(String token){
         try {
             Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(generateToken(token));
             return true;
-        } catch (ExpiredJwtException e) {
+        } catch (JwtException e) {
             return false;
         }
     }
