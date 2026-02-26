@@ -38,7 +38,7 @@ public class UserService implements IUserService{
     public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) throws UserAlreadyExistsException {
         try {
             if (userRepository.existsByEmail(userRequestDTO.email())) {
-                throw new UserAlreadyExistsException("User with email= " + userRequestDTO.email() + "already exist");
+                throw new UserAlreadyExistsException("User","User with email= " + userRequestDTO.email() + "already exist");
             }
 
             User user = userMapper.mapToUserEntity(userRequestDTO);
