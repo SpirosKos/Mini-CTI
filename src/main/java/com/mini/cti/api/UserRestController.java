@@ -35,6 +35,7 @@ public class UserRestController {
 
         UserResponseDTO responseDTO = iUserService.registerUser(userRequestDTO);
 
+        // Generates the full URL
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path("/api/v1/users/{uuid}")
