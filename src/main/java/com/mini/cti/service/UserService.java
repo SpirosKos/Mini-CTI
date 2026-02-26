@@ -50,7 +50,7 @@ public class UserService implements IUserService{
             // Uses savedUser to generate uuid from database.
             User savedUser = userRepository.save(user);
             log.info("User with email={} created successfully", userRequestDTO.email());
-            return userMapper.mapToUserResponseDTO(user);
+            return userMapper.mapToUserResponseDTO(savedUser);
         }catch (UserAlreadyExistsException e) {
             log.error("User with email={} already exists.", userRequestDTO.email());
             throw e;
