@@ -27,12 +27,6 @@ public class UserRestController {
         return ResponseEntity.status(201).body(responseDTO);
     }
 
-    @PostMapping("/users/login")
-    public ResponseEntity<UserResponseDTO> loginUser(@Valid @RequestBody UserRequestDTO userRequestDTO) throws InvalidCredentialException {
-        UserResponseDTO responseDTO = iUserService.loginUser(userRequestDTO);
-        return ResponseEntity.status(200).body(responseDTO);
-    }
-
     @GetMapping("/users/{uuid}")
     public ResponseEntity<UserResponseDTO> getUserByUUID(@PathVariable UUID uuid) throws UserNotFoundException {
         UserResponseDTO responseDTO = iUserService.getUserByUUID(uuid);
