@@ -1,5 +1,8 @@
-package com.mini.cti.core.exceptions;
+package com.mini.cti.core;
 
+import com.mini.cti.core.exceptions.InvalidCredentialException;
+import com.mini.cti.core.exceptions.UserAlreadyExistsException;
+import com.mini.cti.core.exceptions.UserNotFoundException;
 import com.mini.cti.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
