@@ -62,21 +62,4 @@ public class UserService implements IUserService{
         return null;
     }
 
-    @Override
-    public UserResponseDTO loginUser(UserRequestDTO userRequestDTO) throws InvalidCredentialException {
-
-        try {
-            User user =  userRepository.findByEmail(userRequestDTO.email())
-                    .orElseThrow(() -> new InvalidCredentialException("Invalid login credentials.Please try again."));
-            if (!passwordEncoder.matches(userRequestDTO.password(), user.getPassword())) {
-                throw new InvalidCredentialException("Invalid login credentials.Please try again");
-            }
-
-            return userMapper.mapToUserResponseDTO(user);
-
-        }catch (InvalidCredentialException e){
-            log.error("Invalid login credentials.Please try again.");
-            throw e;
-        }
-    }
 }

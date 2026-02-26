@@ -15,7 +15,4 @@ public interface IUserService {
     UserResponseDTO getUserByUUID(UUID uuid)
         throws UserNotFoundException;
 
-    UserResponseDTO loginUser(UserRequestDTO userRequestDTO)
-        throws InvalidCredentialException;
-
 }
