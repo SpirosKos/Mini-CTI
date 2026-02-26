@@ -12,13 +12,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.naming.AuthenticationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,8 +77,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO(("Something went wrong"), "An unexpected error occurred."));
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e,
+
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException( AuthenticationException e,
                                                                                  HttpServletRequest request) {
        log.warn("Failed login for IP={}", request.getRemoteAddr());
 
