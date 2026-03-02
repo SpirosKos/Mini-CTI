@@ -1,6 +1,7 @@
 package com.mini.cti.authentication;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -67,16 +70,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         }catch (ExpiredJwtException e){
-            log.warn("Token has expired: {} ", e.getMessage());
-        }catch (MalformedJwtException e){
-            log.warn("Invalid token : {}", e.getMessage());
+            // triggers AuthenticationEntryPoint 401
+            throw new AuthenticationCredentialsNotFoundException("Token has expired.");
+        }catch (JwtException | IllegalArgumentException  e){
+            throw new BadCredentialsException("Invalid token");
+        }catch (BadCredentialsException e){
+            // just leave to net filter
+            throw e;
         }catch (Exception e){
-            log.error("User could not be authenticated.", e);
+            log.error("Unexpected error during validation", e);
+            throw new AuthenticationCredentialsNotFoundException("Token validation failed.");
         }
 
         // Continue filter chain
         filterChain.doFilter(request,response);
-
     }
 
 
