@@ -12,6 +12,9 @@ import com.mini.cti.model.User;
 import com.mini.cti.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class UserService implements IUserService{
+public class UserService implements IUserService , UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -62,4 +65,9 @@ public class UserService implements IUserService{
         return null;
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email " + email + " not found."));
+    }
 }
