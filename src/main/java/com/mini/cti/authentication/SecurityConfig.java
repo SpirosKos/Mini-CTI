@@ -4,6 +4,8 @@ package com.mini.cti.authentication;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,9 +31,9 @@ public class SecurityConfig {
         http
                 .csrf( crsf -> crsf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/users/login").permitAll()
+                        .requestMatchers("/api/v1/login").permitAll()
                         .requestMatchers("/api/v1/register").permitAll()
-                        .requestMatchers("/api/v1/users/{uuid}").permitAll()        //hasAnyRole("USER", "ADMIN") after public test
+                        .requestMatchers("/api/v1/users/**").hasRole("USER")       //hasAnyRole("USER", "ADMIN") after public test
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -44,5 +46,10 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config ) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
