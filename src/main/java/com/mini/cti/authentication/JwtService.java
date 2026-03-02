@@ -1,7 +1,9 @@
 package com.mini.cti.authentication;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.time.Instant;
@@ -10,11 +12,14 @@ import java.util.Date;
 @Component
 public class JwtService {
 
-    private final String SECRET_KEY = "p4s5w0rd_v3ry_str0ng_4nd_l0ng_3n0ugh_256_bits";
-    private final long EXPIRATION_TIME = 43200000;    // 12 hours
+    @Value("${app.security.secret-key}")
+    private  String SECRET_KEY;
+
+    @Value("${app.security.jwt-expiration}")
+    private  long EXPIRATION_TIME;
 
     private SecretKey getSigningKey(){
-       byte[] SECRET_BYTE = SECRET_KEY.getBytes();
+       byte[] SECRET_BYTE = Decoders.BASE64.decode(SECRET_KEY);
        return Keys.hmacShaKeyFor(SECRET_BYTE);
     }
 

@@ -22,7 +22,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfiguration {
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
