@@ -1,6 +1,7 @@
 package com.mini.cti.api;
 
 
+import com.mini.cti.authentication.JwtUtil;
 import com.mini.cti.core.exceptions.InvalidCredentialException;
 import com.mini.cti.core.exceptions.UserAlreadyExistsException;
 import com.mini.cti.core.exceptions.UserNotFoundException;
@@ -11,6 +12,9 @@ import com.mini.cti.service.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -24,6 +28,8 @@ import java.util.UUID;
 public class UserRestController {
 
     private final IUserService iUserService;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserRequestDTO userRequestDTO,
@@ -46,6 +52,16 @@ public class UserRestController {
                 .created(location)
                 .body(responseDTO);
 
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserRequestDTO loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
+                (loginRequest.email(), loginRequest.password()));
+
+        String token = jwtUtil.generateToken(authentication.getName());
+
+        return ResponseEntity.ok(token);
     }
 
     @GetMapping("/users/{uuid}")
