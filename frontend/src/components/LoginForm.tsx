@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
 import { Shield, Eye, EyeOff, Github, Mail } from 'lucide-react';
+import { loginUser } from '../services/api';
 
-export default function LoginForm() {
+export default function LoginForm({ onLoginSuccess}: {onLoginSuccess: () => void}) {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try{
+      const data = await loginUser(email, password);
+      onLoginSuccess();
+    }catch (error){
+      console.error('Login failed.',error)
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -20,11 +33,13 @@ export default function LoginForm() {
         <h2 className="text-2xl font-bold text-white mb-1">Sign In</h2>
         <p className="text-slate-400 text-sm mb-8">Access your threat intelligence dashboard</p>
 
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
             <input 
-              type="email" 
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="analyst@sentinel.io" 
               className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
             />
@@ -33,7 +48,9 @@ export default function LoginForm() {
           <div className="relative">
             <label className="block text-slate-300 text-sm font-medium mb-2">Password</label>
             <input 
-              type={showPassword ? "text" : "password"} 
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)} 
               placeholder="Enter your password" 
               className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
             />

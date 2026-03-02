@@ -16,12 +16,7 @@ function App() {
         // We pass the logout function as a prop called 'onLogout'
         <Dashboard onLogout={handleLogout} />
       ) : (
-        /* Note: In your actual LoginForm, you should call a function 
-          that sets setIsLoggedIn(true) upon a successful backend response.
-        */
-        <div onClick={() => setIsLoggedIn(true)}>
-          <LoginForm />
-        </div>
+        <LoginForm onLoginSuccess={() => setIsLoggedIn(true)} />
       )}
     </div>
   );
