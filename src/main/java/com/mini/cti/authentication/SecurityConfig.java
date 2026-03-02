@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .requestMatchers("/api/v1/register").permitAll()
-                        .requestMatchers("/api/v1/users/{uuid}").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/v1/users/{uuid}").permitAll()        //hasAnyRole("USER", "ADMIN") after public test
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
