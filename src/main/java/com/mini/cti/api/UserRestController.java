@@ -1,7 +1,7 @@
 package com.mini.cti.api;
 
 
-import com.mini.cti.authentication.JwtUtil;
+import com.mini.cti.authentication.JwtService;
 import com.mini.cti.core.exceptions.InvalidCredentialException;
 import com.mini.cti.core.exceptions.UserAlreadyExistsException;
 import com.mini.cti.core.exceptions.UserNotFoundException;
@@ -28,7 +28,7 @@ import java.util.UUID;
 public class UserRestController {
 
     private final IUserService iUserService;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
@@ -59,7 +59,7 @@ public class UserRestController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                 (loginRequest.email(), loginRequest.password()));
 
-        String token = jwtUtil.generateToken(authentication.getName());
+        String token = jwtService.generateToken(authentication.getName());
 
         return ResponseEntity.ok("{\"token\":\"" + token + "\"}");
     }
