@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class UserService implements IUserService , UserDetailsService {
+public class UserService implements IUserService{
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -65,9 +65,4 @@ public class UserService implements IUserService , UserDetailsService {
         return null;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + email + " not found."));
-    }
 }

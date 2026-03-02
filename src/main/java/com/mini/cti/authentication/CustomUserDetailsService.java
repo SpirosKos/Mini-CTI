@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
@@ -15,8 +17,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email){
 
+        System.out.println("Loading user with email: " + email);
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+
+
+        System.out.println("Found user with email: " + user.getEmail());
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())

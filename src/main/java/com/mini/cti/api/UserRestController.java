@@ -54,14 +54,14 @@ public class UserRestController {
 
     }
 
-    @PostMapping("/login")
+    @PostMapping("/users/login")
     public ResponseEntity<String> login(@RequestBody UserRequestDTO loginRequest) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                 (loginRequest.email(), loginRequest.password()));
 
         String token = jwtUtil.generateToken(authentication.getName());
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok("{\"token\":\"" + token + "\"}");
     }
 
     @GetMapping("/users/{uuid}")

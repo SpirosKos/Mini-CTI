@@ -26,6 +26,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         response.setContentType("application/json");
         response.setStatus(200);
-        response.getWriter().write("{\"token\": \\" + token + "\"}");
+        response.getWriter().write("{\"token\": \"" + token + "\"}");
     }
 }
