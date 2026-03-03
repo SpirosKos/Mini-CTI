@@ -30,7 +30,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ValidationErrorResponseDTO> handleValidationException (ValidationException e){
 
-
         log.warn("Validation Failed. Message={}" , e.getMessage());
 
         BindingResult bindingResult = e.getBindingResult();
@@ -45,6 +44,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidCredentialException.class)
     public ResponseEntity<ErrorResponseDTO> handleInvalidCredentialException(InvalidCredentialException e) {
+        log.warn("Invalid Credentials.Message={}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)    // 401 Unauthorized
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
@@ -52,6 +52,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        log.warn("User already exist.Message={}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)        // 409 Conflict
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
@@ -59,6 +60,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleUserNotFoundException(UserNotFoundException e) {
+        log.warn("User not found.Message={}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)       // 404 Not found
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
