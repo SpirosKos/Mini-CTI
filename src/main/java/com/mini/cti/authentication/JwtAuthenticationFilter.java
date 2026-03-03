@@ -2,7 +2,6 @@ package com.mini.cti.authentication;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    String username;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -48,12 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Validate token and authenticate user
             if (jwt != null &&
-                    jwtService.validateToken(jwt)
+                    jwtService.isTokenValid(jwt, userDetailsService.loadUserByUsername(username))
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
                         // Only authenticate if NOT already authenticated
 
                 // Extract username from token
-                String username = jwtService.extractUsername(jwt);
+                String username = jwtService.extractSubject(jwt);
 
                 // Load user details from database
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
