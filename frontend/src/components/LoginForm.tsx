@@ -2,18 +2,26 @@ import React, { useState } from 'react';
 import { Shield, Eye, EyeOff, Github, Mail } from 'lucide-react';
 import { loginUser } from '../services/api';
 
-export default function LoginForm({ onLoginSuccess}: {onLoginSuccess: () => void}) {
+export default function LoginForm({ 
+  onLoginSuccess,
+  onNavigateToRegister
+}: {
+  onLoginSuccess: () => void;
+  onNavigateToRegister: () => void
+}) {
+  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
 
     try{
       const data = await loginUser(email, password);
       onLoginSuccess();
-    }catch (error){
-      console.error('Login failed.',error)
+    }catch (err: any){
+      setError(err.message);
     }
   };
 
@@ -30,9 +38,13 @@ export default function LoginForm({ onLoginSuccess}: {onLoginSuccess: () => void
 
       {/* Glassmorphism Card */}
       <div className="w-full max-w-md bg-glass-bg backdrop-blur-xl border border-glass-border rounded-2xl p-8 shadow-2xl">
-        <h2 className="text-2xl font-bold text-white mb-1">Sign In</h2>
-        <p className="text-slate-400 text-sm mb-8">Access your threat intelligence dashboard</p>
+        <h2 className="text-2xl font-bold text-white mb-1 text-center">Sign In</h2>
+        <p className="text-slate-400 text-sm mb-8 text-center">Access your threat intelligence dashboard</p>
 
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-500 text-sm p-3 rounded-lg mb-6 text-center">{error}
+          </div>
+        )}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
@@ -83,7 +95,7 @@ export default function LoginForm({ onLoginSuccess}: {onLoginSuccess: () => void
         </div>
 
         <p className="text-center text-slate-400 text-sm mt-8">
-          Don't have an account? <span className="text-sky-400 cursor-pointer hover:underline">Sign Up</span>
+          Don't have an account? <span onClick={onNavigateToRegister} className="text-sky-400 cursor-pointer hover:underline">Sign Up</span>
         </p>
       </div>
 

@@ -5,17 +5,23 @@ export default API_BASE_URL;
 export async function registerUser(email: string, password: string) {
     const response = await fetch(`${API_BASE_URL}/register`,{
         method: 'POST',
-        headers: {
-            'Content-Type' : 'application/json'
-        },
+        headers: {'Content-Type' : 'application/json' },
         body: JSON.stringify({ email, password})
     });
 
+    const data = await response.json().catch(() => ({}))
+
     if(!response.ok) {
-        throw new Error('Registration failed');
+
+        // const errorData = await response.json().catch(() => ({}));
+
+        const errorMessage = data.description || data.message || "Registration failed";
+
+
+        throw new Error(errorMessage);
     }
 
-    return await response.json();
+    return data;
 }
 
 export async function loginUser(email: string, password: string) {
@@ -27,13 +33,19 @@ export async function loginUser(email: string, password: string) {
         body: JSON.stringify({ email, password })
     });
 
-    const text = await response.text();  // ← Get as text first
+    const data = await response.json().catch(() => ({}))
+
+    // const text = await response.text();  // ← Get as text first
 
     if (!response.ok) {
-        throw new Error('Login failed');
+
+        const errorMessage = data.description || data.message || "Invalid credentials"
+        throw new Error(errorMessage);
     }
 
-    const data = JSON.parse(text);  // ← Parse manually
-    localStorage.setItem('token', data.token);
+    // const data = JSON.parse(text);  // ← Parse manually
+    if(data.token){
+        localStorage.setItem('token', data.token);
+    }
     return data;
 }
