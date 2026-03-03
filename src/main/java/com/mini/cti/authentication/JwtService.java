@@ -29,6 +29,7 @@ public class JwtService {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(username)
+                .issuer("http://localhost:8080")        // for dev
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(EXPIRATION_TIME)))
                 .signWith(getSigningKey())
@@ -41,12 +42,7 @@ public class JwtService {
     }
 
     public String extractSubject(String token){
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+        return extractClaim(token, Claims::getSubject);
     }
 
     public boolean isTokenExpired(String token) {
@@ -69,5 +65,9 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 }
