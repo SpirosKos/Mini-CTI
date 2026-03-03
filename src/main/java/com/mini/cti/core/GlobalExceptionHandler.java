@@ -15,14 +15,14 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -64,10 +64,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 
+    @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponseDTO> handleDatabaseException(DataAccessException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponseDTO("INTERNAL_SERVER_ERROR","A database error occurred."));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException( AuthenticationException e,
+                                                                           HttpServletRequest request) {
+        log.warn("Failed login for IP={}", request.getRemoteAddr());
+
+        String errorCode = switch (e) {
+            case BadCredentialsException ex -> "INVALID_CREDENTIALS";
+            case DisabledException ex -> "ACCOUNT_DISABLED";
+            case LockedException ex -> "ACCOUNT_LOCKED";
+            case AccountExpiredException ex -> "ACCOUNT_EXPIRED";
+            case CredentialsExpiredException ex -> "CREDENTIALS_EXPIRED";
+            default -> "AUTHENTICATION_ERROR";
+        };
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)     // 401 unauthorized
+                .body(new ErrorResponseDTO(errorCode, e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -77,22 +97,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO(("Something went wrong"), "An unexpected error occurred."));
     }
 
-
-    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException( AuthenticationException e,
-                                                                                 HttpServletRequest request) {
-       log.warn("Failed login for IP={}", request.getRemoteAddr());
-
-       String errorCode = switch (e) {
-           case BadCredentialsException ex -> "INVALID_CREDENTIALS";
-           case DisabledException ex -> "ACCOUNT_DISABLED";
-           case LockedException ex -> "ACCOUNT_LOCKED";
-           case AccountExpiredException ex -> "ACCOUNT_EXPIRED";
-           case CredentialsExpiredException ex -> "CREDENTIALS_EXPIRED";
-           default -> "AUTHENTICATION_ERROR";
-       };
-
-       return ResponseEntity
-               .status(HttpStatus.UNAUTHORIZED)     // 401 unauthorized
-               .body(new ErrorResponseDTO(errorCode, e.getMessage()));
-    }
 }
