@@ -1,5 +1,5 @@
-package com.mini.cti.dto;
-
-
-public record IpLookUpResponseDTO {
-}
+//package com.mini.cti.dto;
+//
+//
+//public record IpLookUpResponseDTO {
+//}
