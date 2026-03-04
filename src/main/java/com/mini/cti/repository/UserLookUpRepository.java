@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface UserLookUpRepository extends JpaRepository<UserLookUp, UUID> {
 
     List<UserLookUp> findByUserOrderByCreatedAtDesc(User user);
+
+    // Delete first UserLookups then in Ipcache after 10-15 days.
     void deleteByCreatedAtBefore(LocalDateTime expiryData);
 
 }
