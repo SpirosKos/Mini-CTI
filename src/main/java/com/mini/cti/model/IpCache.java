@@ -2,11 +2,19 @@ package com.mini.cti.model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "ip_cache")
 public class IpCache extends AbstractEntity{
 
@@ -26,8 +34,8 @@ public class IpCache extends AbstractEntity{
     private Integer reputation;     // 527 higher = better
 
     // Metadata
-    private Instant analyzedAt;       // When checked
-    private Instant lastAnalysisDate;  // VirusTotals's last check
+    private Instant lastUpdate;       // When WE last  refresh from VirusTotals
+    private Instant lastAnalysisDate;  // VirusTotals's last analyzed
 
 
     private Integer malicious;      // 0
