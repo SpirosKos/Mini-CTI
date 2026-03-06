@@ -9,6 +9,5 @@ import java.util.UUID;
 public interface IpCacheRepository  extends JpaRepository<IpCache, UUID> {
 
     Optional<IpCache> findByIpAddress(String ip);
-    boolean existsByIpAddress(String ip);
 
 }
