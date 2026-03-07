@@ -12,6 +12,6 @@ public record IpLookUpResponseDTO(
         Integer suspicious,
         Integer harmless,
         Integer undetected,
-        Instant lastAnalysisDate
+        Long lastAnalysisDate
 ) {
 }
