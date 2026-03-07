@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface IpCacheRepository  extends JpaRepository<IpCache, UUID> {
+public interface IpCacheRepository  extends JpaRepository<IpCache, String> {
 
-    Optional<IpCache> findByIpAddress(String ip);
+    Optional<IpCache> findByIpAddress(String ipAddress);
 
 }
