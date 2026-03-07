@@ -24,7 +24,6 @@ public class VirusTotalService {
     private String baseUrl;
 
 
-    // TODO continue the logic with restTemplate and the return
     private final RestTemplate restTemplate;
 
     public ResponseEntity<VirusTotalResponseDTO> getIpInfo(String ip) {
