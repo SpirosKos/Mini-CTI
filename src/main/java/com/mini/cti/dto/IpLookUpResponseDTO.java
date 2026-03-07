@@ -7,11 +7,12 @@ public record IpLookUpResponseDTO(
         String ipAddress,
         String country,
         String asOwner,
-        String reputation,
+        Integer reputation,
         Integer malicious,
         Integer suspicious,
         Integer harmless,
         Integer undetected,
-        Long lastAnalysisDate
+        Instant lastAnalysisDate,
+        Instant lastUpdate
 ) {
 }
