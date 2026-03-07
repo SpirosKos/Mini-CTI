@@ -35,7 +35,7 @@ public class IpCache extends AbstractEntity{
 
     // Metadata
     private Instant lastUpdate;       // When WE last  refresh from VirusTotals
-    private Long lastAnalysisDate;  // VirusTotals's last analyzed
+    private Instant lastAnalysisDate;  // VirusTotals's last analyzed
 
 
     private Integer malicious;      // 0
