@@ -1,24 +1,18 @@
 package com.mini.cti.service;
 
 
-import com.mini.cti.core.exceptions.InvalidCredentialException;
 import com.mini.cti.core.exceptions.UserAlreadyExistsException;
 import com.mini.cti.core.exceptions.UserNotFoundException;
 import com.mini.cti.dto.UserRequestDTO;
 import com.mini.cti.dto.UserResponseDTO;
-import com.mini.cti.enums.Role;
-import com.mini.cti.mapper.UserMapper;
+import com.mini.cti.mapper.Mapper;
 import com.mini.cti.model.User;
 import com.mini.cti.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -27,7 +21,7 @@ import java.util.UUID;
 public class UserService implements IUserService{
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final Mapper mapper;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -44,7 +38,7 @@ public class UserService implements IUserService{
                 throw new UserAlreadyExistsException("User","User with email= " + userRequestDTO.email() + "already exist");
             }
 
-            User user = userMapper.mapToUserEntity(userRequestDTO);
+            User user = mapper.mapToUserEntity(userRequestDTO);
 
             // encodes the password
             user.setPassword(passwordEncoder.encode(userRequestDTO.password()));
@@ -53,7 +47,7 @@ public class UserService implements IUserService{
             // Uses savedUser to generate uuid from database.
             User savedUser = userRepository.save(user);
             log.info("User with email={} created successfully", userRequestDTO.email());
-            return userMapper.mapToUserResponseDTO(savedUser);
+            return mapper.mapToUserResponseDTO(savedUser);
         }catch (UserAlreadyExistsException e) {
             log.error("User with email={} already exists.", userRequestDTO.email());
             throw e;
