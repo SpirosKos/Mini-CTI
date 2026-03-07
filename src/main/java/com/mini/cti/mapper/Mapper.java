@@ -28,7 +28,7 @@ public class Mapper {
 
     public IpCache mapToIpCacheEntity(VirusTotalResponseDTO virusTotalResponseDTO) {
         IpCache ipCache = new IpCache();
-        ipCache.setIpAddress(virusTotalResponseDTO.data().id());
+        ipCache.setIpAddress(virusTotalResponseDTO.data().ipAddress());
         ipCache.setCountry(virusTotalResponseDTO.data().attributes().country());
         ipCache.setAsOwner(virusTotalResponseDTO.data().attributes().as_owner());
         ipCache.setReputation(virusTotalResponseDTO.data().attributes().reputation());

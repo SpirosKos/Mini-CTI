@@ -5,7 +5,7 @@ public record VirusTotalResponseDTO(
 ) {
 
     public record DataDTO(
-            String id,      // ip address
+            String ipAddress,
             AttributesDTO attributes
     ){}
 
