@@ -6,7 +6,7 @@ import com.mini.cti.model.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper {
+public class Mapper {
     public User mapToUserEntity(UserRequestDTO userRequestDTO){
         User user = new User();
         user.setEmail(userRequestDTO.email());
