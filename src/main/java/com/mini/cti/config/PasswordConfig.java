@@ -1,4 +1,4 @@
-package com.mini.cti.authentication;
+package com.mini.cti.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
