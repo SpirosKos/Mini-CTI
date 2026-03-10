@@ -3,7 +3,7 @@ package com.mini.cti.core.exceptions;
 import lombok.Getter;
 
 @Getter
-public class AppGenericException extends Exception {
+public class AppGenericException extends RuntimeException {
 
     private final String code;
 
