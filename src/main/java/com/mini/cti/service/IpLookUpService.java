@@ -11,6 +11,7 @@ import com.mini.cti.repository.IpCacheRepository;
 import com.mini.cti.repository.UserLookUpRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,8 @@ public class IpLookUpService {
 
         try {
 
+            // IpAddress validation
+            ipValidation(ipAddress);
 
             Optional<IpCache> cachedResult = ipCacheRepository.findByIpAddress(ipAddress);
 
@@ -89,8 +92,9 @@ public class IpLookUpService {
                 return mapper.mapToIpLookUpResponseDTO(newCache);
             }
 
-        }catch () {
-
+        }catch (InvalidIpAddressException e) {
+            log.error("IpAddress = {} is not valid.", ipAddress);
+            throw e;
         }
     }
 
@@ -128,6 +132,10 @@ public class IpLookUpService {
 
     private void ipValidation(String ipAddress) {
         if (ipAddress == null || ipAddress.trim().isEmpty()) {
+            throw new InvalidIpAddressException(ipAddress);
+        }
+        InetAddressValidator addressValidator = InetAddressValidator.getInstance();
+        if (!addressValidator.isValidInet4Address(ipAddress)) {
             throw new InvalidIpAddressException(ipAddress);
         }
     }
