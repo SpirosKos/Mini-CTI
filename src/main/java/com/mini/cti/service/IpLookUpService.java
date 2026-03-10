@@ -1,6 +1,7 @@
 package com.mini.cti.service;
 
 import com.mini.cti.core.exceptions.InvalidIpAddressException;
+import com.mini.cti.core.exceptions.VirusTotalApiException;
 import com.mini.cti.dto.IpLookUpResponseDTO;
 import com.mini.cti.dto.VirusTotalResponseDTO;
 import com.mini.cti.mapper.Mapper;
@@ -20,6 +21,10 @@ import java.time.Instant;
 import java.util.Optional;
 
 
+// TODO CONTINUE WITH EXCEPTION HANDLING TO
+//  FIND OUT WHATS THE MOST EFFICIENT WITH
+//  try catch OR NOT and finish with this Service
+
 @RequiredArgsConstructor
 @Service
 @Slf4j
@@ -31,7 +36,8 @@ public class IpLookUpService {
     private final VirusTotalService virusTotalService;
     private static final int CACHE_HOURS= 24;
 
-    public IpLookUpResponseDTO lookUpIp(String ipAddress, User user) {
+    public IpLookUpResponseDTO lookUpIp(String ipAddress, User user)
+            throws InvalidIpAddressException, VirusTotalApiException {
 
         try {
 
@@ -58,7 +64,7 @@ public class IpLookUpService {
                     VirusTotalResponseDTO vtResponse = response.getBody();
 
                     if (vtResponse == null) {
-                        throw new RuntimeException("Failed to fetch data. Try again in a bit.");
+                        throw new VirusTotalApiException("Failed to fetch data. Try again.");
                     }
 
                     // Update existing ip cache
@@ -78,7 +84,7 @@ public class IpLookUpService {
                 ResponseEntity<VirusTotalResponseDTO> response = virusTotalService.getIpInfo(ipAddress);
                 VirusTotalResponseDTO vtResponse = response.getBody();
                 if (vtResponse == null) {
-                    throw new RuntimeException("Failed to fetch data. Try again in a bit.");
+                    throw new VirusTotalApiException ("Failed to fetch data. Try again.");
                 }
 
                 IpCache newCache = mapper.mapToIpCacheEntity(vtResponse);
@@ -94,6 +100,9 @@ public class IpLookUpService {
 
         }catch (InvalidIpAddressException e) {
             log.error("IpAddress = {} is not valid.", ipAddress);
+            throw e;
+        }catch (VirusTotalApiException e) {
+            log.error("API call failed.", e);
             throw e;
         }
     }
