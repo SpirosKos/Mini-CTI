@@ -1,9 +1,6 @@
 package com.mini.cti.core;
 
-import com.mini.cti.core.exceptions.InvalidCredentialException;
-import com.mini.cti.core.exceptions.UserAlreadyExistsException;
-import com.mini.cti.core.exceptions.UserNotFoundException;
-import com.mini.cti.core.exceptions.ValidationException;
+import com.mini.cti.core.exceptions.*;
 import com.mini.cti.dto.ErrorResponseDTO;
 import com.mini.cti.dto.ValidationErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,6 +69,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponseDTO("INTERNAL_SERVER_ERROR","A database error occurred."));
     }
+
+    @ExceptionHandler(InvalidIpAddressException.class)
+    public ResponseEntity<ErrorResponseDTO> handleIpAddressException(InvalidIpAddressException e) {
+        return ResponseEntity
+                .badRequest()
+                .body(new ErrorResponseDTO(e.getMessage()));
+    }
+
+    public ResponseEntity<ErrorResponseDTO> handleVirusTotalException(VirusTotalApiException e) {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)     // 503 Service Unavailable
+                .body(new ErrorResponseDTO(e.getMessage()));
+    }
+
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthenticationException( AuthenticationException e,
