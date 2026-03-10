@@ -36,7 +36,7 @@ public class Mapper {
         ipCache.setSuspicious(virusTotalResponseDTO.data().attributes().last_analysis_stats().suspicious());
         ipCache.setHarmless(virusTotalResponseDTO.data().attributes().last_analysis_stats().harmless());
         ipCache.setUndetected(virusTotalResponseDTO.data().attributes().last_analysis_stats().undetected());
-        Long timestamp = virusTotalResponseDTO.data().attributes().last_analysis_date();        // TODO Incoming long from VirusTotal -> Instant for db and Response's
+        Long timestamp = virusTotalResponseDTO.data().attributes().last_analysis_date();
         ipCache.setLastAnalysisDate(Instant.ofEpochSecond(timestamp));
         ipCache.setLastUpdate(Instant.now());
 
