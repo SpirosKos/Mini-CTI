@@ -38,6 +38,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation "org.postgresql:postgresql:42.7.7"
+    implementation"commons-validator:commons-validator:1.10.1"
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
