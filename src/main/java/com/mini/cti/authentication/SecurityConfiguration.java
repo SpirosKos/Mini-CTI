@@ -24,8 +24,9 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    // TODO check if handlers are needed
+//    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+//    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -38,6 +39,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .requestMatchers("/api/v1/register").permitAll()
                         .requestMatchers("/api/v1/users/{uuid}").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
+                        .requestMatchers("/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
