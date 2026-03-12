@@ -1,6 +1,5 @@
 package com.mini.cti.authentication;
 
-import com.mini.cti.model.User;
 import com.mini.cti.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
