@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String username = jwtService.extractSubject(jwt);
 
                 // Load user details from database
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);  // TODO maybe need from username -> email for authentication will test later.
 
                 // Token authentication
                 if (jwtService.isTokenValid(jwt,userDetails)){
