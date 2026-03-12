@@ -39,7 +39,7 @@ public class IpLookUpService {
     public IpLookUpResponseDTO lookUpIp(String ipAddress, User user)
             throws InvalidIpAddressException, VirusTotalApiException {
 
-        try {
+//        try {
 
             // IpAddress validation
             ipValidation(ipAddress);
@@ -48,63 +48,62 @@ public class IpLookUpService {
 
             if (cachedResult.isPresent()) {
                 IpCache cache = cachedResult.get();
-
-                if (!isCacheStale(cache)){
-
-                    // Hit for fresh cached data return
-                    log.info("User = {} searched IP = {} at {}", user.getEmail(),ipAddress,Instant.now());
-
-                    // Record user history
-                    recordUserSearch(user, cache);
-
-                    return mapper.mapToIpLookUpResponseDTO(cache);
-                }else {
-
-                    ResponseEntity<VirusTotalResponseDTO> response = virusTotalService.getIpInfo(ipAddress);
-                    VirusTotalResponseDTO vtResponse = response.getBody();
-
-                    if (vtResponse == null) {
-                        throw new VirusTotalApiException("Failed to fetch data. Try again.");
-                    }
-
-                    // Update existing ip cache
-                    updateIpCacheFields(cache,vtResponse);
-
-                    // Save updated ip cache
-                    ipCacheRepository.save(cache);
-
-                    // Record user search
-                    recordUserSearch(user, cache);
-
-                    return mapper.mapToIpLookUpResponseDTO(cache);
-                }
-
-            }else {
-
-                ResponseEntity<VirusTotalResponseDTO> response = virusTotalService.getIpInfo(ipAddress);
-                VirusTotalResponseDTO vtResponse = response.getBody();
-                if (vtResponse == null) {
-                    throw new VirusTotalApiException ("Failed to fetch data. Try again.");
-                }
-
-                IpCache newCache = mapper.mapToIpCacheEntity(vtResponse);
-
-                ipCacheRepository.save(newCache);
-
-                recordUserSearch(user,newCache);
-                // Ip not in cache searched from VirusTotal
-                log.info("User = {} searched for new  IP = {} at {}", user.getEmail(),ipAddress,Instant.now());
-
-                return mapper.mapToIpLookUpResponseDTO(newCache);
+                return isCacheStale(cache)
+                        ? refreshExistingCache(cache, user)
+                        : useExistingCache(cache, user);
             }
 
-        }catch (InvalidIpAddressException e) {
-            log.error("IpAddress = {} is not valid.", ipAddress);
-            throw e;
-        }catch (VirusTotalApiException e) {
-            log.error("API call failed.", e);
-            throw e;
-        }
+            return fetchAndSaveNewIp(ipAddress, user);
+//                if (!isCacheStale(cache)){
+//
+//                    // Hit for fresh cached data return
+//                    log.info("User = {} searched IP = {} at {}", user.getEmail(),ipAddress,Instant.now());
+//
+//                    // Record user history
+//                    recordUserSearch(user, cache);
+//
+//                    return mapper.mapToIpLookUpResponseDTO(cache);
+//                }else {
+//
+//
+//                    VirusTotalResponseDTO vtResponse = fetchFromVirusTotal(ipAddress);
+//
+//                    // Update existing ip cache
+//                    updateIpCacheFields(cache,vtResponse);
+//
+//                    // Save updated ip cache
+//                    ipCacheRepository.save(cache);
+//
+//                    // Record user search
+//                    recordUserSearch(user, cache);
+//
+//                    return mapper.mapToIpLookUpResponseDTO(cache);
+//                }
+
+//            }else {
+//
+//
+//                VirusTotalResponseDTO vtResponse = fetchFromVirusTotal(ipAddress);
+//
+//                IpCache newCache = mapper.mapToIpCacheEntity(vtResponse);
+//
+//                ipCacheRepository.save(newCache);
+//
+//                recordUserSearch(user,newCache);
+//
+//                // Ip not in cache searched from VirusTotal
+//                log.info("User = {} searched for new  IP = {} at {}", user.getEmail(),ipAddress,Instant.now());
+//
+//                return mapper.mapToIpLookUpResponseDTO(newCache);
+//            }
+//
+//        }catch (InvalidIpAddressException e) {
+//            log.error("IpAddress = {} is not valid.", ipAddress);
+//            throw e;
+//        }catch (VirusTotalApiException e) {
+//            log.error("API call failed.", e);
+//            throw e;
+//        }
     }
 
 
@@ -115,6 +114,33 @@ public class IpLookUpService {
         Duration age = Duration.between(cacheTime, now);
 
         return age.toHours() >= CACHE_HOURS;
+    }
+
+    private IpLookUpResponseDTO useExistingCache(IpCache cache, User user) {
+
+        log.info("Cache hit for IP: {} at {}.", cache.getIpAddress(), Instant.now());
+        recordUserSearch(user, cache);
+        return mapper.mapToIpLookUpResponseDTO(cache);
+    }
+
+    private IpLookUpResponseDTO refreshExistingCache(IpCache cache, User user) {
+
+        log.info("Refreshing stale cache IP: {} at {}.", cache.getIpAddress(), Instant.now());
+        VirusTotalResponseDTO vtResponse = fetchFromVirusTotal(cache.getIpAddress());
+        updateIpCacheFields(cache, vtResponse);
+        ipCacheRepository.save(cache);
+        recordUserSearch(user,cache);
+        return mapper.mapToIpLookUpResponseDTO(cache);
+    }
+
+    private IpLookUpResponseDTO fetchAndSaveNewIp(String ipAddress, User user) {
+
+        log.info("Fetching data from VirusTotal for IP: {} at {}.", ipAddress, Instant.now());
+        VirusTotalResponseDTO vtResponse = fetchFromVirusTotal(ipAddress);
+        IpCache newCache = mapper.mapToIpCacheEntity(vtResponse);
+        ipCacheRepository.save(newCache);
+        recordUserSearch(user,newCache);
+        return mapper.mapToIpLookUpResponseDTO(newCache);
     }
 
     private void recordUserSearch(User user, IpCache ipCache) {
@@ -147,6 +173,15 @@ public class IpLookUpService {
         if (!addressValidator.isValidInet4Address(ipAddress)) {
             throw new InvalidIpAddressException(ipAddress);
         }
+    }
+
+    private VirusTotalResponseDTO fetchFromVirusTotal(String ipAddress) {
+        ResponseEntity<VirusTotalResponseDTO> response = virusTotalService.getIpInfo(ipAddress);
+        VirusTotalResponseDTO vtResponse = response.getBody();
+        if (vtResponse == null) {
+            throw new VirusTotalApiException("Fetch data from VirusTotal failed.");
+        }
+        return vtResponse;
     }
 
 }
