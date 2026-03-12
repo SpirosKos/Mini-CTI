@@ -20,7 +20,7 @@ public class VirusTotalService {
     @Value("${app.virustotal.api.key}")
     private String apiKey;
 
-    @Value(("${app.virustotal.base_url}"))
+    @Value("${app.virustotal.base_url}")
     private String baseUrl;
 
 
