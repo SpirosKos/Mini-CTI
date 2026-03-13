@@ -126,18 +126,35 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
         <p className="text-slate-400 flex justify-center">Search global indicators and vulnerability databases</p>
       </header>
 
+
+      {/* --- NEW: Live Threat Map Section --- */}
+      <div className="mb-12 rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/40 relative shadow-2xl">
+        {/* Aspect ratio container to keep the map responsive */}
+        <div className="relative w-full pb-[45%] min-h-[400px]"> 
+          <iframe width="900" height="865" 
+            src="https://cybermap.kaspersky.com/en/widget/dynamic/dark" 
+            title="Live Cyber Threat Map"
+            className="absolute top-0 left-0 w-full h-full border-0 pointer-events-auto"
+            sandbox="allow-scripts allow-same-origin allow-popups"
+          />
+        </div>
+
+        {/* Optional: A subtle overlay gradient to blend the iframe edges into your dark theme */}
+        <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(2,6,23,0.8)]" />
+      </div>
+
       {/* Dual Search Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      <div className="flex justify-center mb-12">
 
         {/* IP Search Card */}
-        <div className="bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-brand-blue/30 transition-all group ">
+        <div className="w-full max-w-2xl bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-brand-blue/30 transition-all group ">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-brand-blue/10 rounded-2xl group-hover:bg-brand-blue/20 transition-colors">
               <Globe className="text-brand-blue" size={24} />
             </div>
-            <h3 className="text-xl font-bold text-white">IP LookUp</h3>
+            <h3 className="text-2xl font-bold text-white">IP LookUp</h3>
           </div>
-          <p className="text-slate-400 text-sm mb-6">Check reputation and internal feeds.</p>
+          <p className="text-slate-400 text-m mb-6">Check reputation and internal feeds.</p>
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
             <input
