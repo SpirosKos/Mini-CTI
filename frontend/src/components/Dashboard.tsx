@@ -11,15 +11,39 @@ import {
   Globe,
   ChevronRight
 } from 'lucide-react';
+import { IpLookUpResult, lookUpApi } from '../services/ipLookUpApi';
 
 export default function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeIp, setActiveIp] = useState('');
+  const [ipResult, setIpResult] = useState<IpLookUpResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+    
+  
+  // const handleIpSearch = (ip: string) => {
+    //   setActiveIp(ip);
+    //   setActiveTab('ip-search');
+    // };
 
-  // Called from the overview IP card — navigates to ip-search tab with the IP
-  const handleIpSearch = (ip: string) => {
+  const handleIpSearch = async (ip: string) => {
     setActiveIp(ip);
     setActiveTab('ip-search');
+
+    //Call API
+    setLoading(true);
+    setError('');
+
+    try {
+      const result = await lookUpApi(ip);
+      setIpResult(result);
+      console.log('Result:', result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to lookup IP");
+      console.error("Error:", err)
+    }finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,7 +74,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             <Globe size={20} /> IP Lookup
           </button>
 
-          <button
+          {/* <button
             onClick={() => setActiveTab('cve')}
             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
               activeTab === 'cve' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
@@ -66,7 +90,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             }`}
           >
             <Database size={20} /> CISA KEV
-          </button>
+          </button> */}
         </nav>
 
         <button
@@ -83,8 +107,8 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
       <main className="flex-1 ml-64 p-8 overflow-y-auto">
         {activeTab === 'dashboard' && <OverviewContent onIpSearch={handleIpSearch} />}
         {activeTab === 'ip-search' && <IpSearch initialIp={activeIp} />}
-        {activeTab === 'cve' && <CveSearchContent />}
-        {activeTab === 'cisa' && <CisaKevContent />}
+        {/* {activeTab === 'cve' && <CveSearchContent />}
+        {activeTab === 'cisa' && <CisaKevContent />} */}
       </main>
     </div>
   );
@@ -98,15 +122,15 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
   return (
     <div className="animate-in fade-in duration-500">
       <header className="mb-10">
-        <h2 className="text-3xl font-bold text-white">Threat Intelligence Center</h2>
-        <p className="text-slate-400">Search global indicators and vulnerability databases</p>
+        <h2 className="text-3xl font-bold text-white flex justify-center">Threat Intelligence Center</h2>
+        <p className="text-slate-400 flex justify-center">Search global indicators and vulnerability databases</p>
       </header>
 
       {/* Dual Search Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
 
         {/* IP Search Card */}
-        <div className="bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-brand-blue/30 transition-all group">
+        <div className="bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-brand-blue/30 transition-all group ">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-brand-blue/10 rounded-2xl group-hover:bg-brand-blue/20 transition-colors">
               <Globe className="text-brand-blue" size={24} />
@@ -133,7 +157,7 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
           </div>
         </div>
 
-        {/* CVE Search Card */}
+        {/* CVE Search Card
         <div className="bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-orange-500/30 transition-all group">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-orange-500/10 rounded-2xl group-hover:bg-orange-500/20 transition-colors">
@@ -152,7 +176,9 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
               className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-orange-500/40 text-white font-mono"
             />
           </div>
-        </div>
+        </div> */}
+
+
       </div>
 
       {/* Quick Stats Grid */}

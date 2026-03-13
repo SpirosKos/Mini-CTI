@@ -4,89 +4,8 @@ import {
   MapPin, Building2, Network, Clock, ChevronRight, ExternalLink,
   Activity, Eye, Lock, Unlock
 } from 'lucide-react';
-
-// --- Mock data generator (replace API calls with real ones later) ---
-function getMockIpData(ip: string) {
-  const seeds: Record<string, any> = {
-    '8.8.8.8': {
-      ip: '8.8.8.8',
-      reputation: 'clean',
-      score: 0,
-      country: 'United States',
-      countryCode: 'US',
-      city: 'Mountain View',
-      isp: 'Google LLC',
-      org: 'GOOGLE',
-      asn: 'AS15169',
-      network: '8.8.8.0/24',
-      type: 'DNS Resolver',
-      lastSeen: '2 hours ago',
-      totalScans: 94,
-      malicious: 0,
-      suspicious: 0,
-      harmless: 90,
-      undetected: 4,
-      tags: ['CDN', 'Legitimate', 'DNS'],
-      engines: [
-        { name: 'Cloudforce One', result: 'clean' },
-        { name: 'ArcSight Threat Intel', result: 'clean' },
-        { name: 'Criminal IP', result: 'clean' },
-        { name: 'Emerging Threats', result: 'clean' },
-        { name: 'Maltiverse', result: 'clean' },
-        { name: 'Pulsedive', result: 'clean' },
-        { name: 'Scumware.org', result: 'clean' },
-        { name: 'Spur.us', result: 'clean' },
-      ],
-    },
-  };
-
-  if (seeds[ip]) return seeds[ip];
-
-  // Generate deterministic-ish mock for unknown IPs
-  const octets = ip.split('.').map(Number);
-  const seed = octets.reduce((a, b) => a + b, 0);
-  const isMalicious = seed % 5 === 0;
-  const isSuspicious = seed % 3 === 0 && !isMalicious;
-
-  const countries = ['Russia', 'China', 'Germany', 'Netherlands', 'Brazil', 'Iran', 'Ukraine', 'France'];
-  const isps = ['Hetzner Online GmbH', 'DigitalOcean LLC', 'Linode LLC', 'OVH SAS', 'Alibaba Cloud', 'Amazon.com'];
-  const countryIdx = seed % countries.length;
-
-  return {
-    ip,
-    reputation: isMalicious ? 'malicious' : isSuspicious ? 'suspicious' : 'clean',
-    score: isMalicious ? Math.floor(seed % 40) + 15 : isSuspicious ? Math.floor(seed % 10) + 3 : 0,
-    country: countries[countryIdx],
-    countryCode: countries[countryIdx].slice(0, 2).toUpperCase(),
-    city: 'Unknown',
-    isp: isps[seed % isps.length],
-    org: isps[seed % isps.length].split(' ')[0].toUpperCase(),
-    asn: `AS${10000 + (seed * 37) % 50000}`,
-    network: `${octets[0]}.${octets[1]}.0.0/16`,
-    type: isMalicious ? 'Threat Actor' : 'Hosting Provider',
-    lastSeen: `${(seed % 24) + 1} hours ago`,
-    totalScans: 70 + (seed % 30),
-    malicious: isMalicious ? Math.floor(seed % 20) + 5 : 0,
-    suspicious: isSuspicious ? Math.floor(seed % 5) + 1 : 0,
-    harmless: isMalicious ? 30 + (seed % 20) : 60 + (seed % 30),
-    undetected: 5 + (seed % 10),
-    tags: isMalicious
-      ? ['Botnet', 'C2 Server', 'Malware']
-      : isSuspicious
-      ? ['Proxy', 'VPN', 'Tor Exit']
-      : ['Hosting', 'Cloud'],
-    engines: [
-      { name: 'Cloudforce One', result: isMalicious ? 'malicious' : 'clean' },
-      { name: 'ArcSight Threat Intel', result: isMalicious ? 'malicious' : isSuspicious ? 'suspicious' : 'clean' },
-      { name: 'Criminal IP', result: isMalicious ? 'malicious' : 'clean' },
-      { name: 'Emerging Threats', result: isSuspicious ? 'suspicious' : 'clean' },
-      { name: 'Maltiverse', result: isMalicious ? 'malicious' : 'clean' },
-      { name: 'Pulsedive', result: isMalicious ? 'malicious' : isSuspicious ? 'suspicious' : 'clean' },
-      { name: 'Scumware.org', result: 'clean' },
-      { name: 'Spur.us', result: isSuspicious ? 'suspicious' : 'clean' },
-    ],
-  };
-}
+import { lookUpApi, IpLookUpResult } from '../services/ipLookUpApi';
+import { getReputation, calculateScore, getTags, formatDate} from '../utils/ipHelpers';
 
 // --- Verdict Badge ---
 function VerdictBadge({ reputation }: { reputation: string }) {
@@ -104,28 +23,6 @@ function VerdictBadge({ reputation }: { reputation: string }) {
   );
 }
 
-// --- Engine Result Row ---
-function EngineRow({ name, result }: { name: string; result: string }) {
-  const colorMap: Record<string, string> = {
-    malicious: 'text-red-400',
-    suspicious: 'text-yellow-400',
-    clean: 'text-emerald-400',
-  };
-  const dotMap: Record<string, string> = {
-    malicious: 'bg-red-400',
-    suspicious: 'bg-yellow-400',
-    clean: 'bg-emerald-400',
-  };
-  return (
-    <div className="flex items-center justify-between py-2.5 border-b border-slate-800/60 last:border-0">
-      <span className="text-slate-300 text-sm font-mono">{name}</span>
-      <span className={`flex items-center gap-2 text-sm font-bold capitalize ${colorMap[result] ?? 'text-slate-400'}`}>
-        <span className={`w-2 h-2 rounded-full ${dotMap[result] ?? 'bg-slate-400'}`} />
-        {result}
-      </span>
-    </div>
-  );
-}
 
 // --- Main IpSearch Component ---
 interface IpSearchProps {
@@ -134,9 +31,9 @@ interface IpSearchProps {
 
 const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
   const [query, setQuery] = useState(initialIp);
-  const [results, setResults] = useState<ReturnType<typeof getMockIpData> | null>(null);
+  const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [searchedIp, setSearchedIp] = useState('');
+
 
   // Auto-search if initialIp is provided
   useEffect(() => {
@@ -148,18 +45,49 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
   const isValidIp = (ip: string) =>
     /^(\d{1,3}\.){3}\d{1,3}$/.test(ip) && ip.split('.').every((o) => parseInt(o) <= 255);
 
-  const runSearch = (ip: string) => {
+  const runSearch = async (ip: string) => {
     if (!isValidIp(ip)) return;
-    setLoading(true);
-    setResults(null);
-    setSearchedIp(ip);
 
-    // Simulate network delay
-    setTimeout(() => {
-      setResults(getMockIpData(ip));
+    setLoading(true);
+    // setResults(null);
+    // setSearchedIp(ip);
+
+    try {
+      
+      // API Call
+      const data = await lookUpApi(ip);
+      console.log('API Response:', data);
+
+      setResults({
+        ip: data.ipAddress,
+        reputation: getReputation(data.malicious, data.suspicious),
+        score: calculateScore(data.malicious, data.suspicious, data.harmless),
+        country: data.country || 'Uknown',
+        countryCode: data.country ? data.country.slice(0, 2).toUpperCase() : 'XX',
+        city: 'N/A',
+        isp: data.asOwner || "Uknown",
+        org: data.asOwner ? data.asOwner.split(' ')[0] : 'Uknown',
+        asn: 'N/A',
+        network: 'N/A',
+        type: 'N/A',
+        lastSeen: formatDate(data.lastAnalysisDate),
+        totalScans: data.malicious + data.suspicious + data.harmless + data.undetected,
+        malicious: data.malicious,
+        suspicious: data.suspicious,
+        harmless: data.harmless,
+        undetected: data.undetected,
+        tags: getTags(data.malicious, data.suspicious, data.reputation),
+        // engines: [],
+      });
+    } catch (error) {
+      console.error('API Error:', error);
+      alert("Failed to fetch IP data");
+    } finally {
       setLoading(false);
-    }, 900);
+    }
   };
+
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,19 +125,6 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
           {loading ? <Loader2 size={20} className="animate-spin" /> : <><Activity size={20} /> Analyze</>}
         </button>
       </form>
-
-      {/* Loading State */}
-      {loading && (
-        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-12 text-center">
-          <Loader2 className="mx-auto text-sky-400 animate-spin mb-4" size={40} />
-          <p className="text-slate-400 font-mono">Querying threat intelligence feeds for <span className="text-white">{searchedIp}</span>...</p>
-          <div className="mt-4 flex justify-center gap-2 text-xs text-slate-600">
-            {['VirusTotal', 'AbuseIPDB', 'Shodan', 'Criminal IP', 'Pulsedive'].map((f) => (
-              <span key={f} className="bg-slate-800 px-2 py-1 rounded-full">{f}</span>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Results */}
       {results && !loading && (
@@ -297,18 +212,6 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
             </div>
           </div>
 
-          {/* Engine Breakdown */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Network size={14} /> Engine Breakdown
-            </h3>
-            <div>
-              {results.engines.map((engine: { name: string; result: string }) => (
-                <EngineRow key={engine.name} name={engine.name} result={engine.result} />
-              ))}
-            </div>
-          </div>
-
           {/* External Links */}
           <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">Investigate Further</h3>
@@ -316,7 +219,6 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
               {[
                 { label: 'VirusTotal', url: `https://www.virustotal.com/gui/ip-address/${results.ip}` },
                 { label: 'AbuseIPDB', url: `https://www.abuseipdb.com/check/${results.ip}` },
-                { label: 'Shodan', url: `https://www.shodan.io/host/${results.ip}` },
                 { label: 'ipapi', url: `https://ipapi.co/${results.ip}` },
               ].map(({ label, url }) => (
                 <a
@@ -334,15 +236,7 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
 
         </div>
       )}
-
-      {/* Empty State */}
-      {!results && !loading && (
-        <div className="bg-slate-900/30 border border-slate-800/50 rounded-2xl p-16 text-center">
-          <Globe className="mx-auto text-slate-700 mb-4" size={48} />
-          <p className="text-slate-500 font-mono">Enter an IP address to begin analysis</p>
-          <p className="text-slate-600 text-sm mt-2">Try: 8.8.8.8 · 1.1.1.1 · 192.168.1.1</p>
-        </div>
-      )}
+      
     </div>
   );
 };
