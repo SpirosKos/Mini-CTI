@@ -1,4 +1,4 @@
-package com.mini.cti.authentication;
+package com.mini.cti.security;
 
 
 import lombok.RequiredArgsConstructor;
