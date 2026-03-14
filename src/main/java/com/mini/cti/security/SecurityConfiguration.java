@@ -1,22 +1,31 @@
 package com.mini.cti.security;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -28,31 +37,70 @@ public class SecurityConfiguration {
 //    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 //    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ObjectMapper objectMapper;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception{
 
         http
                 .cors( cors -> cors.configurationSource(configurationSource()))
                 .csrf( crsf -> crsf.disable())
-                .authorizeHttpRequests(authorize -> authorize
+                .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .requestMatchers("/api/v1/register").permitAll()
                         .requestMatchers("/api/v1/users/{uuid}").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
                         .requestMatchers("/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        )
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(myCustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(myCustomAccessDeniedHandler()));
 
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+
+    // AuthenticationEntryPoint (Handles 401 Unauthorized)
+    // Triggered when an unauthenticated user tries to access a secured resource.
+    // Default behavior: Returns HTTP 401 (for APIs).
+    @Bean
+    public AuthenticationEntryPoint myCustomAuthenticationEntryPoint() {
+        return new CustomAuthenticationEntryPoint(objectMapper);
+    }
+
+
+    // AccessDeniedHandler (Handles 403 Forbidden)
+    // Triggered when an authenticated user tries to access a resource they don’t have permissions for.
+    // Returns HTTP 403 Forbidden with a basic error page.
+    public AccessDeniedHandler myCustomAccessDeniedHandler() {
+        return new CustomAccessDeniedHandler(objectMapper);
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config ) throws Exception {
         return config.getAuthenticationManager();
     }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder
+    ) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
+    }
+
+
 
     @Bean
     public CorsConfigurationSource configurationSource() {
@@ -65,4 +113,6 @@ public class SecurityConfiguration {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 }
