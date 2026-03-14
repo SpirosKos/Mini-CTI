@@ -1,7 +1,6 @@
 package com.mini.cti.repository;
 
 import com.mini.cti.model.User;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
