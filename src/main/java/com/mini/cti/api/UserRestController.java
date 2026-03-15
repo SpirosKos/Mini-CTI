@@ -12,6 +12,7 @@ import com.mini.cti.service.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -64,7 +65,10 @@ public class UserRestController {
         return ResponseEntity.ok("{\"token\":\"" + token + "\"}");
     }
 
+
+    // TODO connect with frontend for get into user profile most propably.
     @GetMapping("/users/{uuid}")
+    @PreAuthorize("@userSecurityService.isOwnUser(#uuid, authentication)")
     public ResponseEntity<UserResponseDTO> getUserByUUID(@PathVariable UUID uuid) throws UserNotFoundException {
         UserResponseDTO responseDTO = iUserService.getUserByUUID(uuid);
         return ResponseEntity.status(200).body(responseDTO);
