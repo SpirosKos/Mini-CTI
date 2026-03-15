@@ -66,7 +66,7 @@ public class UserRestController {
     }
 
 
-    // TODO connect with frontend for get into user profile most propably.
+    // TODO connect with frontend for get into user profile most probably.
     @GetMapping("/users/{uuid}")
     @PreAuthorize("@userSecurityService.isOwnUser(#uuid, authentication)")
     public ResponseEntity<UserResponseDTO> getUserByUUID(@PathVariable UUID uuid) throws UserNotFoundException {
