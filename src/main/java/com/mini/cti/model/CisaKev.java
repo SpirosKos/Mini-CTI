@@ -28,7 +28,7 @@ public class CisaKev extends AbstractEntity{
 
     private String vulnerabilityName;
 
-    private String dataAdded;
+    private String dateAdded;
 
     private String shortDescription;
 
