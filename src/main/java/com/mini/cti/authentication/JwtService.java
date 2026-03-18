@@ -25,9 +25,11 @@ public class JwtService {
        return Keys.hmacShaKeyFor(SECRET_BYTE);
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         Instant now = Instant.now();
+
         return Jwts.builder()
+                .claim("role", role)
                 .subject(username)
                 .issuer("http://localhost:8080")        // for dev
                 .issuedAt(Date.from(now))

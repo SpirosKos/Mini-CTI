@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -60,7 +61,12 @@ public class UserRestController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                 (loginRequest.email(), loginRequest.password()));
 
-        String token = jwtService.generateToken(authentication.getName());
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse("USER");
+
+        String token = jwtService.generateToken(authentication.getName(), role);
 
         return ResponseEntity.ok("{\"token\":\"" + token + "\"}");
     }

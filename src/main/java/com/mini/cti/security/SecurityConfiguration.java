@@ -48,8 +48,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/v1/users/login").permitAll()
                         .requestMatchers("/api/v1/register").permitAll()
-                        .requestMatchers("/api/v1/users/{uuid}").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
-                        .requestMatchers("/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
+                        .requestMatchers("/api/v1/users/{uuid}").hasAnyRole("USER","ADMIN")
+                        .requestMatchers("/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers("/api/v1/cisa-kev/**").hasAnyRole("ADMIN","USER")
                         .requestMatchers("/api/v1/cisa-kev/update/**").hasRole("ADMIN")
                         .requestMatchers(
