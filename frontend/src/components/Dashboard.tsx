@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import IpSearch from './IpSearch';
 import { CisaKevDashboard } from './CisaKevDashboard';
@@ -6,14 +6,46 @@ import {
   LayoutDashboard, 
   ShieldAlert, 
   Database, 
-  Activity, 
   Search, 
   LogOut, 
-  FileWarning, 
   Globe,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
-import { IpLookUpResult, lookUpApi } from '../services/ipLookUpApi';
+
+// --- Helper: Decode JWT to check for ADMIN role ---
+const checkIsAdmin = (): boolean => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.log("No token found in localStorage");
+    return false;
+  }
+
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+
+    const payload = JSON.parse(jsonPayload);
+    
+    // DEBUGGING: Print the token payload to the browser console
+    console.log("JWT PAYLOAD:", payload);
+
+    // Convert the entire payload to a string to catch any naming convention (role, roles, authorities, etc.)
+    const rolesString = JSON.stringify(payload);
+    
+    // Check if "ADMIN" exists anywhere in the token data
+    const isAdmin = rolesString.includes('ADMIN');
+    console.log("Is Admin?", isAdmin);
+
+    return isAdmin;
+  } catch (error) {
+    console.error("Failed to decode token", error);
+    return false;
+  }
+};
 
 type DashboardProps = {
   onLogout: () => void;
@@ -22,45 +54,48 @@ type DashboardProps = {
 
 export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
   const navigate = useNavigate();
-  const { ip } = useParams(); // <-- Grabs "8.8.8.8" from the URL
+  const { ip } = useParams();
 
-  // When the user searches from the overview screen, we just change the URL!
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isUpdatingDb, setIsUpdatingDb] = useState(false);
+
+  // Check admin status on mount
+  useEffect(() => {
+    setIsAdmin(checkIsAdmin());
+  }, []);
+
   const handleIpSearch = (searchIp: string) => {
     if (searchIp.trim()) {
       navigate(`/ip-lookup/${searchIp.trim()}`); 
     }
   };
 
+  const handleManualDbUpdate = async () => {
+    const token = localStorage.getItem('token');
+    setIsUpdatingDb(true);
 
-// export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
-//   const navigate = useNavigate();
-//   const {ip} = useParams();
-//   const [activeIp, setActiveIp] = useState('');
-//   const [ipResult, setIpResult] = useState<IpLookUpResult | null>(null);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState('');
-    
-//   const handleIpSearch = (searchIp: string) => {
-//     setActiveIp(ip);
-    
-//     // Tell the router to change the URL to the IP Lookup tab
-//     navigate('/ip-lookup'); 
+    try {
+      const response = await fetch('http://localhost:8080/api/v1/cisa-kev/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-//     //Call API
-//     setLoading(true);
-//     setError('');
+      const data = await response.json();
 
-//     try {
-//       const result = await lookUpApi(ip);
-//       setIpResult(result);
-//       console.log('Result:', result);
-//     } catch (err) {
-//       setError(err instanceof Error ? err.message : "Failed to lookup IP");
-//       console.error("Error:", err)
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+      if (response.ok) {
+        alert("✅ " + data.message);
+      } else {
+        alert("❌ Update failed: " + data.message);
+      }
+    } catch (error) {
+      alert("❌ Error connecting to backend.");
+    } finally {
+      setIsUpdatingDb(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 flex">
@@ -90,16 +125,6 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
             <Globe size={20} /> IP Lookup
           </button>
 
-          {/* Commented out as in your original file */}
-          {/* <button
-            onClick={() => navigate('/cve')}
-            className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-              activeTab === 'cve' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
-            }`}
-          >
-            <FileWarning size={20} /> CVE Search
-          </button> */}
-
           <button
             onClick={() => navigate('/cisa-kev')}
             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
@@ -110,10 +135,25 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
           </button>
         </nav>
 
+        {/* ADMIN ONLY: Manual Update Button */}
+        {isAdmin && (
+          <button
+            onClick={handleManualDbUpdate}
+            disabled={isUpdatingDb}
+            className="flex items-center gap-3 p-3 text-slate-500 hover:text-brand-blue transition-colors mt-4 border-t border-slate-800 pt-4 w-full"
+          >
+            {isUpdatingDb ? <Loader2 size={18} className="animate-spin text-brand-blue" /> : <Database size={18} />}
+            <span className="text-sm font-bold">
+              {isUpdatingDb ? 'Updating DB...' : 'Force DB Sync'}
+            </span>
+          </button>
+        )}
+
+        {/* Logout Button */}
         <button
           type="button"
           onClick={onLogout}
-          className="flex items-center gap-3 p-3 text-slate-500 hover:text-red-400 transition-colors mt-auto border-t border-slate-800 pt-4 cursor-pointer group"
+          className={`flex items-center gap-3 p-3 text-slate-500 hover:text-red-400 transition-colors cursor-pointer group w-full ${!isAdmin ? 'mt-auto border-t border-slate-800 pt-4' : ''}`}
         >
           <LogOut size={20} className="group-hover:scale-110 transition-transform" />
           <span className="font-bold">Logout</span>
@@ -124,7 +164,6 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
       <main className="flex-1 ml-64 p-8 overflow-y-auto">
         {activeTab === 'home' && <OverviewContent onIpSearch={handleIpSearch} />}
         {activeTab === 'ip-lookup' && <IpSearch initialIp={ip || ''} />}
-        {/* {activeTab === 'cve' && <CveSearchContent />} */}
         {activeTab === 'cisa-kev' && <CisaKevContent />}
       </main>
     </div>
@@ -134,7 +173,6 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
 // --- Sub-Component: Overview ---
 function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
   const [ipInput, setIpInput] = useState('');
-  const [cveInput, setCveInput] = useState(''); // Kept here in case you re-enable it later
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -158,7 +196,6 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
 
       {/* Dual Search Grid */}
       <div className="flex justify-center mb-12">
-        {/* IP Search Card */}
         <div className="w-full max-w-2xl bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-brand-blue/30 transition-all group ">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-brand-blue/10 rounded-2xl group-hover:bg-brand-blue/20 transition-colors">
@@ -185,21 +222,6 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
             </button>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Sub-Component: CVE Search Page ---
-function CveSearchContent() {
-  return (
-    <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-      <header className="mb-10">
-        <h2 className="text-3xl font-bold text-white">Full CVE Database</h2>
-        <p className="text-slate-400 font-medium">Deep query across the National Vulnerability Database</p>
-      </header>
-      <div className="bg-slate-900/50 border border-slate-800 p-12 rounded-2xl text-center">
-        <p className="text-slate-500 font-mono">Advanced filtering and export options will appear here.</p>
       </div>
     </div>
   );
