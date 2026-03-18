@@ -1,6 +1,7 @@
 package com.mini.cti.service;
 
 import com.mini.cti.core.exceptions.CisaApiException;
+import com.mini.cti.core.exceptions.VulnerabilityNotFoundException;
 import com.mini.cti.dto.CisaKevDTO;
 import com.mini.cti.dto.CisaKevResponseDTO;
 import com.mini.cti.mapper.Mapper;
@@ -240,7 +241,15 @@ public class CisaKevService {
      * @return List of all {@link CisaKev} entities in the database
      * @see CisaKev
      */
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<CisaKev> getAllVulnerabilities() {
         return cisaKevRepository.findAll();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public CisaKev getVulnerabilityByCveId(String cveID){
+        return cisaKevRepository.findByCveID(cveID)
+                .orElseThrow(() -> new VulnerabilityNotFoundException(cveID));
     }
 }
