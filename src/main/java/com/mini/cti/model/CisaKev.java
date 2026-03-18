@@ -33,4 +33,12 @@ public class CisaKev extends AbstractEntity{
     private String shortDescription;
 
     private String requiredAction;
+
+    private String dueDate;
+
+    private String knownRansomwareCampaignUse;
+
+    private String notes;
+
+    private String cwes;
 }
