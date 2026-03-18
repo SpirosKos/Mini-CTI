@@ -42,6 +42,11 @@ function App() {
           element={isAuthenticated ? <Dashboard activeTab="ip-lookup" onLogout={handleLogout} /> : <Navigate to="/login" />} 
         />
 
+        <Route 
+          path="/ip-lookup/" 
+          element={isAuthenticated ? <Dashboard activeTab="ip-lookup" onLogout={handleLogout} /> : <Navigate to="/login" />} 
+        />
+
         {/* 5. Dashboard Route (CISA KEV Tab) */}
         <Route 
           path="/cisa-kev" 
