@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // <-- 1. Import this
 import {
   Globe, ShieldCheck, ShieldAlert, AlertTriangle, Loader2,
   MapPin, Building2, Network, Clock, ChevronRight, ExternalLink,
@@ -23,22 +24,25 @@ function VerdictBadge({ reputation }: { reputation: string }) {
   );
 }
 
-
 // --- Main IpSearch Component ---
 interface IpSearchProps {
   initialIp?: string;
 }
 
 const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
+  const navigate = useNavigate(); // <-- 2. Initialize navigate
   const [query, setQuery] = useState(initialIp);
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-
-  // Auto-search if initialIp is provided
+  // Auto-search AND update search box if initialIp (the URL) changes
   useEffect(() => {
     if (initialIp) {
+      setQuery(initialIp); // Keep the search box in sync with the URL
       runSearch(initialIp);
+    } else {
+      setResults(null); // Clear results if URL has no IP
+      setQuery('');
     }
   }, [initialIp]);
 
@@ -49,11 +53,8 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
     if (!isValidIp(ip)) return;
 
     setLoading(true);
-    // setResults(null);
-    // setSearchedIp(ip);
 
     try {
-      
       // API Call
       const data = await lookUpApi(ip);
       console.log('API Response:', data);
@@ -62,11 +63,11 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
         ip: data.ipAddress,
         reputation: getReputation(data.malicious, data.suspicious),
         score: calculateScore(data.malicious, data.suspicious, data.harmless),
-        country: data.country || 'Uknown',
+        country: data.country || 'Unknown',
         countryCode: data.country ? data.country.slice(0, 2).toUpperCase() : 'XX',
         city: 'N/A',
-        isp: data.asOwner || "Uknown",
-        org: data.asOwner ? data.asOwner.split(' ')[0] : 'Uknown',
+        isp: data.asOwner || "Unknown",
+        org: data.asOwner ? data.asOwner.split(' ')[0] : 'Unknown',
         asn: 'N/A',
         network: 'N/A',
         type: 'N/A',
@@ -77,7 +78,6 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
         harmless: data.harmless,
         undetected: data.undetected,
         tags: getTags(data.malicious, data.suspicious, data.reputation),
-        // engines: [],
       });
     } catch (error) {
       console.error('API Error:', error);
@@ -87,11 +87,12 @@ const IpSearch: React.FC<IpSearchProps> = ({ initialIp = '' }) => {
     }
   };
 
-
-
+  // <-- 3. Update this function to change the URL instead of searching directly
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    runSearch(query.trim());
+    if (query.trim()) {
+      navigate(`/ip-lookup/${query.trim()}`); // This pushes the IP to the URL bar!
+    }
   };
 
   const scoreColor = (score: number) =>

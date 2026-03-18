@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import IpSearch from './IpSearch';
 import { CisaKevDashboard } from './CisaKevDashboard';
 import { 
@@ -14,38 +15,52 @@ import {
 } from 'lucide-react';
 import { IpLookUpResult, lookUpApi } from '../services/ipLookUpApi';
 
-export default function Dashboard({ onLogout }: { onLogout: () => void }) {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [activeIp, setActiveIp] = useState('');
-  const [ipResult, setIpResult] = useState<IpLookUpResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-    
-  
-  // const handleIpSearch = (ip: string) => {
-    //   setActiveIp(ip);
-    //   setActiveTab('ip-search');
-    // };
+type DashboardProps = {
+  onLogout: () => void;
+  activeTab: string; 
+};
 
-  const handleIpSearch = async (ip: string) => {
-    setActiveIp(ip);
-    setActiveTab('ip-search');
+export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
+  const navigate = useNavigate();
+  const { ip } = useParams(); // <-- Grabs "8.8.8.8" from the URL
 
-    //Call API
-    setLoading(true);
-    setError('');
-
-    try {
-      const result = await lookUpApi(ip);
-      setIpResult(result);
-      console.log('Result:', result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to lookup IP");
-      console.error("Error:", err)
-    }finally {
-      setLoading(false);
+  // When the user searches from the overview screen, we just change the URL!
+  const handleIpSearch = (searchIp: string) => {
+    if (searchIp.trim()) {
+      navigate(`/ip-lookup/${searchIp.trim()}`); 
     }
   };
+
+
+// export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
+//   const navigate = useNavigate();
+//   const {ip} = useParams();
+//   const [activeIp, setActiveIp] = useState('');
+//   const [ipResult, setIpResult] = useState<IpLookUpResult | null>(null);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+    
+//   const handleIpSearch = (searchIp: string) => {
+//     setActiveIp(ip);
+    
+//     // Tell the router to change the URL to the IP Lookup tab
+//     navigate('/ip-lookup'); 
+
+//     //Call API
+//     setLoading(true);
+//     setError('');
+
+//     try {
+//       const result = await lookUpApi(ip);
+//       setIpResult(result);
+//       console.log('Result:', result);
+//     } catch (err) {
+//       setError(err instanceof Error ? err.message : "Failed to lookup IP");
+//       console.error("Error:", err)
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 flex">
@@ -58,36 +73,37 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
 
         <nav className="space-y-2 flex-1">
           <button
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => navigate('/dashboard')}
             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-              activeTab === 'dashboard' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
+              activeTab === 'home' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
             }`}
           >
             <LayoutDashboard size={20} /> Dashboard
           </button>
 
           <button
-            onClick={() => setActiveTab('ip-search')}
+            onClick={() => navigate('/ip-lookup')}
             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-              activeTab === 'ip-search' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
+              activeTab === 'ip-lookup' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
             }`}
           >
             <Globe size={20} /> IP Lookup
           </button>
 
-          <button
-            onClick={() => setActiveTab('cve')}
+          {/* Commented out as in your original file */}
+          {/* <button
+            onClick={() => navigate('/cve')}
             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
               activeTab === 'cve' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
             }`}
           >
             <FileWarning size={20} /> CVE Search
-          </button>
+          </button> */}
 
           <button
-            onClick={() => setActiveTab('cisa')}
+            onClick={() => navigate('/cisa-kev')}
             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-              activeTab === 'cisa' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
+              activeTab === 'cisa-kev' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
             }`}
           >
             <Database size={20} /> CISA KEV
@@ -106,10 +122,10 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
 
       {/* Main Content Area */}
       <main className="flex-1 ml-64 p-8 overflow-y-auto">
-        {activeTab === 'dashboard' && <OverviewContent onIpSearch={handleIpSearch} />}
-        {activeTab === 'ip-search' && <IpSearch initialIp={activeIp} />}
-        {activeTab === 'cve' && <CveSearchContent />}
-        {activeTab === 'cisa' && <CisaKevContent />}
+        {activeTab === 'home' && <OverviewContent onIpSearch={handleIpSearch} />}
+        {activeTab === 'ip-lookup' && <IpSearch initialIp={ip || ''} />}
+        {/* {activeTab === 'cve' && <CveSearchContent />} */}
+        {activeTab === 'cisa-kev' && <CisaKevContent />}
       </main>
     </div>
   );
@@ -118,7 +134,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
 // --- Sub-Component: Overview ---
 function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
   const [ipInput, setIpInput] = useState('');
-  const [cveInput, setCveInput] = useState('');
+  const [cveInput, setCveInput] = useState(''); // Kept here in case you re-enable it later
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -127,10 +143,8 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
         <p className="text-slate-400 flex justify-center">Search global indicators and vulnerability databases</p>
       </header>
 
-
-      {/* --- NEW: Live Threat Map Section --- */}
+      {/* Live Threat Map Section */}
       <div className="mb-12 rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/40 relative shadow-2xl">
-        {/* Aspect ratio container to keep the map responsive */}
         <div className="relative w-full pb-[45%] min-h-[400px]"> 
           <iframe width="900" height="865" 
             src="https://cybermap.kaspersky.com/en/widget/dynamic/dark" 
@@ -139,14 +153,11 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
             sandbox="allow-scripts allow-same-origin allow-popups"
           />
         </div>
-
-        {/* Optional: A subtle overlay gradient to blend the iframe edges into your dark theme */}
         <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_40px_rgba(2,6,23,0.8)]" />
       </div>
 
       {/* Dual Search Grid */}
       <div className="flex justify-center mb-12">
-
         {/* IP Search Card */}
         <div className="w-full max-w-2xl bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-brand-blue/30 transition-all group ">
           <div className="flex items-center gap-3 mb-6">
@@ -174,48 +185,7 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
             </button>
           </div>
         </div>
-
-        {/* CVE Search Card
-        <div className="bg-slate-900/40 border border-slate-800 p-8 rounded-3xl backdrop-blur-sm hover:border-orange-500/30 transition-all group">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-orange-500/10 rounded-2xl group-hover:bg-orange-500/20 transition-colors">
-              <FileWarning className="text-orange-500" size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-white">Vulnerability Search</h3>
-          </div>
-          <p className="text-slate-400 text-sm mb-6">Query the NVD for CVE details, severity scores, and patches.</p>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-            <input
-              type="text"
-              value={cveInput}
-              onChange={(e) => setCveInput(e.target.value)}
-              placeholder="Enter CVE (e.g. CVE-2024-0001)..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-orange-500/40 text-white font-mono"
-            />
-          </div>
-        </div> */}
-
-
       </div>
-
-      {/* Quick Stats Grid
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <p className="text-slate-400 text-sm font-medium">Total Indicators</p>
-          <p className="text-3xl font-bold mt-2 text-blue-400">12,842</p>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <p className="text-slate-400 text-sm font-medium">High Severity</p>
-          <p className="text-3xl font-bold mt-2 text-red-400">154</p>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <p className="text-slate-400 text-sm font-medium">Active Scans</p>
-          <p className="text-3xl font-bold mt-2 text-emerald-400">28</p>
-        </div>
-      </div> */}
-
-      
     </div>
   );
 }
@@ -241,16 +211,5 @@ function CisaKevContent() {
     <div className="animate-in fade-in duration-500">
       <CisaKevDashboard />
     </div>
-
-
-
-    // <div className="animate-in fade-in duration-500">
-    //   <h2 className="text-3xl font-bold text-white mb-2">CISA KEV Catalog</h2>
-    //   <p className="text-slate-400 mb-10">Known Exploited Vulnerabilities</p>
-    //   <div className="bg-slate-900 border border-slate-800 p-12 rounded-2xl text-center">
-    //     <Database className="mx-auto text-slate-800 mb-4" size={48} />
-    //     <p className="text-slate-500">Connect to Spring Boot backend to sync the live JSON feed.</p>
-    //   </div>
-    // </div>
   );
 }
