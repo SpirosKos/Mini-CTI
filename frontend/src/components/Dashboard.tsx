@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import IpSearch from './IpSearch';
+import { CisaKevDashboard } from './CisaKevDashboard';
 import { 
   LayoutDashboard, 
   ShieldAlert, 
@@ -74,7 +75,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             <Globe size={20} /> IP Lookup
           </button>
 
-          {/* <button
+          <button
             onClick={() => setActiveTab('cve')}
             className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
               activeTab === 'cve' ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'hover:bg-slate-800 text-slate-400'
@@ -90,7 +91,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             }`}
           >
             <Database size={20} /> CISA KEV
-          </button> */}
+          </button>
         </nav>
 
         <button
@@ -107,8 +108,8 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
       <main className="flex-1 ml-64 p-8 overflow-y-auto">
         {activeTab === 'dashboard' && <OverviewContent onIpSearch={handleIpSearch} />}
         {activeTab === 'ip-search' && <IpSearch initialIp={activeIp} />}
-        {/* {activeTab === 'cve' && <CveSearchContent />}
-        {activeTab === 'cisa' && <CisaKevContent />} */}
+        {activeTab === 'cve' && <CveSearchContent />}
+        {activeTab === 'cisa' && <CisaKevContent />}
       </main>
     </div>
   );
@@ -236,12 +237,18 @@ function CveSearchContent() {
 function CisaKevContent() {
   return (
     <div className="animate-in fade-in duration-500">
-      <h2 className="text-3xl font-bold text-white mb-2">CISA KEV Catalog</h2>
-      <p className="text-slate-400 mb-10">Known Exploited Vulnerabilities</p>
-      <div className="bg-slate-900 border border-slate-800 p-12 rounded-2xl text-center">
-        <Database className="mx-auto text-slate-800 mb-4" size={48} />
-        <p className="text-slate-500">Connect to Spring Boot backend to sync the live JSON feed.</p>
-      </div>
+      <CisaKevDashboard />
     </div>
+
+
+
+    // <div className="animate-in fade-in duration-500">
+    //   <h2 className="text-3xl font-bold text-white mb-2">CISA KEV Catalog</h2>
+    //   <p className="text-slate-400 mb-10">Known Exploited Vulnerabilities</p>
+    //   <div className="bg-slate-900 border border-slate-800 p-12 rounded-2xl text-center">
+    //     <Database className="mx-auto text-slate-800 mb-4" size={48} />
+    //     <p className="text-slate-500">Connect to Spring Boot backend to sync the live JSON feed.</p>
+    //   </div>
+    // </div>
   );
 }

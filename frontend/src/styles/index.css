@@ -10,3 +10,21 @@ body {
   background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
   color: #f8fafc;
 }
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #0f172a; /* slate-900 */
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #334155; /* slate-700 */
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #475569; /* slate-600 */
+}
