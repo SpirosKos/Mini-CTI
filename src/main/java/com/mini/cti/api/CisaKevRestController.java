@@ -19,7 +19,7 @@ public class CisaKevRestController {
     private final CisaKevService cisaKevService;
 
     @PostMapping("/update")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Map<String, String>> manualUpdate() {
 
         try {
