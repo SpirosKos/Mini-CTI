@@ -50,6 +50,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/register").permitAll()
                         .requestMatchers("/api/v1/users/{uuid}").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
                         .requestMatchers("/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")       //hasAnyRole("USER", "ADMIN") after public test
+                        .requestMatchers("/api/v1/cisa-kev/{cveID}").hasAnyRole("ADMIN","USER")
+                        .requestMatchers("/api/v1/cisa-kev/update/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
