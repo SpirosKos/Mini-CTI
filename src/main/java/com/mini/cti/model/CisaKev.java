@@ -8,6 +8,21 @@ import lombok.*;
 import java.util.List;
 
 
+
+/**
+ * Entity representing a Known Exploited Vulnerability from CISA's catalog.
+ *
+ * <p>This entity stores information about vulnerabilities that are known to be
+ * actively exploited in the wild. The data is sourced from CISA's public KEV catalog
+ * and updated regularly via scheduled tasks.</p>
+ *
+ * <p>Each vulnerability is uniquely identified by its CVE ID (e.g., CVE-2021-44228).
+ * The cveID field has a unique constraint to prevent duplicate entries.</p>
+ *
+ * @author Mini-CTI Team
+ *
+ * @see <a href="https://www.cve.org/">CVE Program</a>
+ */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
