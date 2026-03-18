@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,10 +78,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(VirusTotalApiException.class)
     public ResponseEntity<ErrorResponseDTO> handleVirusTotalException(VirusTotalApiException e) {
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)     // 503 Service Unavailable
                 .body(new ErrorResponseDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(VulnerabilityNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleVulnerabilityNotFoundException(VulnerabilityNotFoundException e) {
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                e.getCode(),
+                e.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponseDTO);
     }
 
 
