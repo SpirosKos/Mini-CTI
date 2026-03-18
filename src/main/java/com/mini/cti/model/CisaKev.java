@@ -20,7 +20,7 @@ public class CisaKev extends AbstractEntity{
 
     @NotNull
     @Column(unique = true, nullable = false, updatable = false)
-    private String cveID;
+    private String cveId;
 
     private String vendorProject;
 
