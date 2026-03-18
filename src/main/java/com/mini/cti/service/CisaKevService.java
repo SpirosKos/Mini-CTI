@@ -193,7 +193,6 @@ public class CisaKevService {
      * @see #syncWithDatabase(List)
      */
     @Scheduled(cron = "0 0 8 * * MON-FRI")  // 8 AM Weekdays
-    @PreAuthorize("hasRole('ADMIN')")
     public void updateDatabase() {
 
         long startTime = System.currentTimeMillis();
