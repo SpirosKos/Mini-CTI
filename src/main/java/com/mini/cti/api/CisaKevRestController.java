@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -64,6 +65,7 @@ public class CisaKevRestController {
      * @return ResponseEntity with success/error message
      * @throws com.mini.cti.core.exceptions.CisaApiException if the CISA API is unavailable
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/update")
     public ResponseEntity<Map<String, String>> manualUpdate() {
 
