@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.List;
+
 
 @Entity
 @NoArgsConstructor
@@ -22,23 +24,31 @@ public class CisaKev extends AbstractEntity{
     @Column(unique = true, nullable = false, updatable = false)
     private String cveID;
 
+    @Column(length = 1000)
     private String vendorProject;
 
+    @Column(length = 1000)
     private String product;
 
+    @Column(length = 1000)
     private String vulnerabilityName;
 
     private String dateAdded;
 
+    @Column(length = 1000)
     private String shortDescription;
 
+    @Column(length = 1000)
     private String requiredAction;
 
     private String dueDate;
 
+    @Column(length = 1000)
     private String knownRansomwareCampaignUse;
 
+    @Column(length = 1000)
     private String notes;
 
-    private String cwes;
+
+    private List<String> cwes;
 }
