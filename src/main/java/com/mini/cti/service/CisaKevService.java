@@ -33,14 +33,12 @@ public class CisaKevService {
     private String cisaKevURL;
 
 
-//    @Qualifier("cisaRestTemplate")
     private final RestTemplate restTemplate;
 
     private final Mapper mapper;
     private final CisaKevRepository cisaKevRepository;
 
 
-//    @PreAuthorize("hasRole('ADMIN)")
     public CisaKevResponseDTO fetchFromCisaApi() {
 
         try {
