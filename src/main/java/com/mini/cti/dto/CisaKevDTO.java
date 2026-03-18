@@ -1,6 +1,8 @@
 package com.mini.cti.dto;
 
 
+import java.util.List;
+
 public record CisaKevDTO(
         String cveID,
         String vendorProject,
@@ -12,6 +14,6 @@ public record CisaKevDTO(
         String dueDate,
         String knownRansomwareCampaignUse,
         String notes,
-        String cwes
+        List<String> cwes
 ) {
 }
