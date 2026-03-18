@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface CisaKevRepository extends JpaRepository<CisaKev,Long> {
 
-    Optional<CisaKev> findByCveId(String cveID);
+    Optional<CisaKev> findByCveID(String cveID);
 }
