@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -251,5 +255,23 @@ public class CisaKevService {
     public CisaKev getVulnerabilityByCveId(String cveID){
         return cisaKevRepository.findByCveID(cveID)
                 .orElseThrow(() -> new VulnerabilityNotFoundException(cveID));
+    }
+
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public Page<CisaKev> getAllVulnerabilitiesPaginated(int page, int size, String sortStr) {
+
+        // Parse sort string
+        String[] sortParams = sortStr.split(",");
+        String field = sortParams[0];
+        Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        // Create Pageable
+        Pageable pageable = PageRequest.of(page,size,Sort.by(direction, field));
+
+        return cisaKevRepository.findAll(pageable);
     }
 }

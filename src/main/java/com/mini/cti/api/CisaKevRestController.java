@@ -5,6 +5,7 @@ import com.mini.cti.model.CisaKev;
 import com.mini.cti.service.CisaKevService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +31,12 @@ public class CisaKevRestController {
 
 
     @GetMapping
-    public ResponseEntity<List<CisaKev>> getAllVulnerabilities(){
-        List<CisaKev> vulnerabilities = cisaKevService.getAllVulnerabilities();
+    public ResponseEntity<Page<CisaKev>> getAllVulnerabilitiesPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dateAdded, desc") String sort
+    ){
+        Page<CisaKev> vulnerabilities = cisaKevService.getAllVulnerabilitiesPaginated(page, size, sort);
         return ResponseEntity.ok(vulnerabilities);
     }
 

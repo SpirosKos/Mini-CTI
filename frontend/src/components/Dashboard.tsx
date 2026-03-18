@@ -199,7 +199,7 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
 
       </div>
 
-      {/* Quick Stats Grid */}
+      {/* Quick Stats Grid
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
           <p className="text-slate-400 text-sm font-medium">Total Indicators</p>
@@ -213,7 +213,9 @@ function OverviewContent({ onIpSearch }: { onIpSearch: (ip: string) => void }) {
           <p className="text-slate-400 text-sm font-medium">Active Scans</p>
           <p className="text-3xl font-bold mt-2 text-emerald-400">28</p>
         </div>
-      </div>
+      </div> */}
+
+      
     </div>
   );
 }
