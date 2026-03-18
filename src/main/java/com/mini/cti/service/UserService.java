@@ -10,6 +10,7 @@ import com.mini.cti.model.User;
 import com.mini.cti.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +56,7 @@ public class UserService implements IUserService{
     }
 
     @Override
+    @PreAuthorize("@userSecurityService.isOwnUser(#uuid, authentication)")
     public UserResponseDTO getUserByUUID(UUID uuid) throws UserNotFoundException {
         return null;
     }
