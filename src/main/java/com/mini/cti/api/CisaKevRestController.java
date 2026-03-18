@@ -1,13 +1,15 @@
 package com.mini.cti.api;
 
 
+import com.mini.cti.model.CisaKev;
 import com.mini.cti.service.CisaKevService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -22,10 +24,24 @@ import java.util.Map;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/cisa-kev")
 public class CisaKevRestController {
 
     private final CisaKevService cisaKevService;
+
+
+    @GetMapping
+    public ResponseEntity<List<CisaKev>> getAllVulnerabilities(){
+        List<CisaKev> vulnerabilities = cisaKevService.getAllVulnerabilities();
+        return ResponseEntity.ok(vulnerabilities);
+    }
+
+
+    @GetMapping("/{cveID}")
+    public ResponseEntity<CisaKev> getVulnerabilityByCveId(@PathVariable String cveID) {
+        CisaKev vulnerability = cisaKevService.getVulnerabilityByCveId(cveID);
+        return ResponseEntity.ok(vulnerability);
+    }
 
 
     /**
