@@ -1,9 +1,7 @@
 package com.mini.cti.mapper;
 
-import com.mini.cti.dto.IpLookUpResponseDTO;
-import com.mini.cti.dto.UserRequestDTO;
-import com.mini.cti.dto.UserResponseDTO;
-import com.mini.cti.dto.VirusTotalResponseDTO;
+import com.mini.cti.dto.*;
+import com.mini.cti.model.CisaKev;
 import com.mini.cti.model.IpCache;
 import com.mini.cti.model.User;
 import org.springframework.stereotype.Component;
@@ -58,4 +56,36 @@ public class Mapper {
                 ipCache.getLastUpdate()
         );
     }
+
+    public CisaKev mapToCisaKevEntity(CisaKevDTO cisaKevDTO) {
+        CisaKev cisaKev = new CisaKev();
+
+        cisaKev.setCveID(cisaKevDTO.cveID());
+        cisaKev.setVendorProject(cisaKevDTO.vendorProject());
+        cisaKev.setProduct(cisaKevDTO.product());
+        cisaKev.setVulnerabilityName(cisaKevDTO.vulnerabilityName());
+        cisaKev.setDateAdded(cisaKevDTO.dateAdded());
+        cisaKev.setShortDescription(cisaKevDTO.shortDescription());
+        cisaKev.setRequiredAction(cisaKevDTO.requiredAction());
+        cisaKev.setDueDate(cisaKevDTO.dueDate());
+        cisaKev.setKnownRansomwareCampaignUse(cisaKevDTO.knownRansomwareCampaignUse());
+        cisaKev.setNotes(cisaKevDTO.notes());
+        cisaKev.setCwes(cisaKevDTO.cwes());
+
+        return cisaKev;
+    }
+
+    public void updateCisaKevEntity(CisaKevDTO dto, CisaKev entity) {
+        entity.setVendorProject(dto.vendorProject());
+        entity.setProduct(dto.product());
+        entity.setVulnerabilityName(dto.vulnerabilityName());
+        entity.setDateAdded(dto.dateAdded());
+        entity.setShortDescription(dto.shortDescription());
+        entity.setRequiredAction(dto.requiredAction());
+        entity.setDueDate(dto.dueDate());
+        entity.setKnownRansomwareCampaignUse(dto.knownRansomwareCampaignUse());
+        entity.setNotes(dto.notes());
+        entity.setCwes(dto.cwes());
+    }
+
 }
