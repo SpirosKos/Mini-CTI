@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -46,12 +47,12 @@ public class SecurityConfiguration {
                 .cors( cors -> cors.configurationSource(configurationSource()))
                 .csrf( crsf -> crsf.disable())
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/api/v1/users/login").permitAll()
-                        .requestMatchers("/api/v1/register").permitAll()
-                        .requestMatchers("/api/v1/users/{uuid}").hasAnyRole("USER","ADMIN")
-                        .requestMatchers("/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers("/api/v1/cisa-kev/**").hasAnyRole("ADMIN","USER")
-                        .requestMatchers("/api/v1/cisa-kev/update/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/v1/register").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/users/{uuid}").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/cisa-kev/**").hasAnyRole("ADMIN","USER")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/cisa-kev/update/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
