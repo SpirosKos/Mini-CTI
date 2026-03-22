@@ -12,40 +12,7 @@ import {
   ChevronRight,
   Loader2
 } from 'lucide-react';
-
-// --- Helper: Decode JWT to check for ADMIN role ---
-const checkIsAdmin = (): boolean => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    console.log("No token found in localStorage");
-    return false;
-  }
-
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
-
-    const payload = JSON.parse(jsonPayload);
-    
-    // DEBUGGING: Print the token payload to the browser console
-    console.log("JWT PAYLOAD:", payload);
-
-    // Convert the entire payload to a string to catch any naming convention (role, roles, authorities, etc.)
-    const rolesString = JSON.stringify(payload);
-    
-    // Check if "ADMIN" exists anywhere in the token data
-    const isAdmin = rolesString.includes('ADMIN');
-    console.log("Is Admin?", isAdmin);
-
-    return isAdmin;
-  } catch (error) {
-    console.error("Failed to decode token", error);
-    return false;
-  }
-};
+import {isAdmin,  getUserEmail, removeToken, getUserRole} from '../utils/jwtUtils'
 
 type DashboardProps = {
   onLogout: () => void;
@@ -56,12 +23,14 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
   const navigate = useNavigate();
   const { ip } = useParams();
 
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdminUser, setIsAdmin] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isUpdatingDb, setIsUpdatingDb] = useState(false);
 
   // Check admin status on mount
   useEffect(() => {
-    setIsAdmin(checkIsAdmin());
+    setIsAdmin(isAdmin);
+    setUserEmail(getUserEmail);
   }, []);
 
   const handleIpSearch = (searchIp: string) => {
@@ -106,6 +75,25 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
           <span className="text-xl font-bold text-white tracking-tight">Mini-CTI</span>
         </div>
 
+        {/* User Info */}
+          {userEmail && (
+            <div className="mb-6 pb-4 border-b border-slate-800">
+              <p className="text-xs text-slate-500 mb-1">Logged in as</p>
+              <p className="text-sm text-slate-300 truncate" title={userEmail}>
+                {userEmail}
+              </p>
+              {getUserRole() && (
+                <span className={`inline-block mt-2 px-2 py-0.5 text-xs font-bold rounded ${
+                  isAdminUser
+                    ? 'bg-orange-500/20 text-orange-400' 
+                    : 'bg-blue-500/20 text-blue-400'
+                }`}>
+                  {getUserRole()?.replace('ROLE_', '')}  {/* Shows "ADMIN" or "USER" */}
+                </span>
+              )}
+            </div>
+          )}
+
         <nav className="space-y-2 flex-1">
           <button
             onClick={() => navigate('/dashboard')}
@@ -136,7 +124,7 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
         </nav>
 
         {/* ADMIN ONLY: Manual Update Button */}
-        {isAdmin && (
+        {isAdminUser && (
           <button
             onClick={handleManualDbUpdate}
             disabled={isUpdatingDb}
@@ -153,7 +141,7 @@ export default function Dashboard({ onLogout, activeTab }: DashboardProps) {
         <button
           type="button"
           onClick={onLogout}
-          className={`flex items-center gap-3 p-3 text-slate-500 hover:text-red-400 transition-colors cursor-pointer group w-full ${!isAdmin ? 'mt-auto border-t border-slate-800 pt-4' : ''}`}
+          className={`flex items-center gap-3 p-3 text-slate-500 hover:text-red-400 transition-colors cursor-pointer group w-full ${!isAdminUser ? 'mt-auto border-t border-slate-800 pt-4' : ''}`}
         >
           <LogOut size={20} className="group-hover:scale-110 transition-transform" />
           <span className="font-bold">Logout</span>
