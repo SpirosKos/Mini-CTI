@@ -37,7 +37,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        return new ResponseEntity<>(new ValidationErrorResponseDTO(e.getMessage(), errors), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ValidationErrorResponseDTO(e.getMessage(), errors), HttpStatus.BAD_REQUEST);    // 400 Bad Request
     }
 
     @ExceptionHandler(InvalidCredentialException.class)
