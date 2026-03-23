@@ -1,7 +1,6 @@
 package com.mini.cti.api;
 
 
-import com.mini.cti.dto.CisaKevResponseDTO;
 import com.mini.cti.dto.ErrorResponseDTO;
 import com.mini.cti.dto.UpdateVulnerabilitiesDTO;
 import com.mini.cti.model.CisaKev;
@@ -50,7 +49,7 @@ public class CisaKevRestController {
                 description = "Results returned successfully",
                 content = @Content(
                         mediaType = "application/json",
-                        schema = @Schema(implementation = CisaKevResponseDTO.class)
+                        schema = @Schema(implementation = CisaKev.class)
                 )
         ),
         @ApiResponse(
@@ -87,8 +86,8 @@ public class CisaKevRestController {
             @Parameter(description = "Number of results per page", example = "10")
             @RequestParam(defaultValue = "10") int size,
 
-            @Parameter(description = "Sort field and direction", example = "dateAdded, desc")
-            @RequestParam(defaultValue = "dateAdded, desc") String sort
+            @Parameter(description = "Sort field and direction", example = "dateAdded,desc")
+            @RequestParam(defaultValue = "dateAdded,desc") String sort
     ){
         Page<CisaKev> vulnerabilities = cisaKevService.getAllVulnerabilitiesPaginated(page, size, sort);
         return ResponseEntity.ok(vulnerabilities);
