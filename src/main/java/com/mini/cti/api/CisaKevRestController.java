@@ -1,6 +1,7 @@
 package com.mini.cti.api;
 
 
+import com.mini.cti.core.exceptions.CisaApiException;
 import com.mini.cti.dto.ErrorResponseDTO;
 import com.mini.cti.dto.UpdateVulnerabilitiesDTO;
 import com.mini.cti.model.CisaKev;
@@ -119,7 +120,7 @@ public class CisaKevRestController {
      * </ul>
      *
      * @return ResponseEntity with success/error message
-     * @throws com.mini.cti.core.exceptions.CisaApiException if the CISA API is unavailable
+     * @throws CisaApiException if the CISA API is unavailable
      */
     @Operation(
             summary = "Manually trigger CVE database update",
