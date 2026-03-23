@@ -92,7 +92,7 @@ public class CisaKevService {
             return restTemplate.getForObject(cisaKevURL, CisaKevResponseDTO.class);
         }catch (Exception e){
             log.error("Failed to fetch data from CISA API", e);
-            throw new CisaApiException("CISA API unavailable",e.getMessage());
+            throw new CisaApiException(e.getMessage());
         }
     }
 
