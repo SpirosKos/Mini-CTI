@@ -1,13 +1,13 @@
 package com.mini.cti.api;
 
 
-import com.mini.cti.dto.CisaKevDTO;
 import com.mini.cti.dto.CisaKevResponseDTO;
 import com.mini.cti.dto.ErrorResponseDTO;
 import com.mini.cti.dto.UpdateVulnerabilitiesDTO;
 import com.mini.cti.model.CisaKev;
 import com.mini.cti.service.CisaKevService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
 
 /**
@@ -42,21 +41,21 @@ public class CisaKevRestController {
 
 
     @Operation(
-            summary = "Vulnerabilities from Cisa-Kev",
-            description = "Import-Update vulnerabilities from Cisa-Kev in JSON"
+            summary = "List all vulnerabilities (paginated)",
+            description = "Returns a paginated list of CVEs from the CISA KEV feed."
     )
     @ApiResponses({
         @ApiResponse(
                 responseCode = "200",
-                description = "CVE's imported successfully",
+                description = "Results returned successfully",
                 content = @Content(
                         mediaType = "application/json",
                         schema = @Schema(implementation = CisaKevResponseDTO.class)
                 )
         ),
         @ApiResponse(
-                responseCode = "401",
-                description = "Not authenticated",
+                responseCode = "400",
+                description = "Invalid pagination parameters",
                 content = @Content(
                         mediaType = "application/json",
                         schema = @Schema(implementation = ErrorResponseDTO.class)
@@ -81,8 +80,14 @@ public class CisaKevRestController {
     })
     @GetMapping
     public ResponseEntity<Page<CisaKev>> getAllVulnerabilitiesPaginated(
+
+            @Parameter(description = "Page number, zero based", example = "0")
             @RequestParam(defaultValue = "0") int page,
+
+            @Parameter(description = "Number of results per page", example = "10")
             @RequestParam(defaultValue = "10") int size,
+
+            @Parameter(description = "Sort field and direction", example = "dateAdded, desc")
             @RequestParam(defaultValue = "dateAdded, desc") String sort
     ){
         Page<CisaKev> vulnerabilities = cisaKevService.getAllVulnerabilitiesPaginated(page, size, sort);
@@ -118,8 +123,8 @@ public class CisaKevRestController {
      * @throws com.mini.cti.core.exceptions.CisaApiException if the CISA API is unavailable
      */
     @Operation(
-            summary = "Update CVE's",
-            description = "Manual database update with newest CVE's from Admin"
+            summary = "Manually trigger CVE database update",
+            description = "Forces an immediate sync with the CISA KEV feed. Requires ADMIN role."
     )
     @ApiResponses({
         @ApiResponse(
@@ -131,8 +136,8 @@ public class CisaKevRestController {
             )
         ),
         @ApiResponse(
-            responseCode = "401",
-            description = "Not authenticated",
+            responseCode = "403",
+            description = "Admin role required.",
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ErrorResponseDTO.class)
