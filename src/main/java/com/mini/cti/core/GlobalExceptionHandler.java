@@ -94,6 +94,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponseDTO);
     }
 
+    @ExceptionHandler(CisaApiException.class)
+    public ResponseEntity<ErrorResponseDTO> handleCisaApiException(CisaApiException e) {
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                e.getCode(),
+                e.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponseDTO);
+    }
+
+
+
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthenticationException( AuthenticationException e,
