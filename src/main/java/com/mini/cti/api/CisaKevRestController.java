@@ -2,9 +2,10 @@ package com.mini.cti.api;
 
 
 import com.mini.cti.core.exceptions.CisaApiException;
+import com.mini.cti.dto.CisaKevDTO;
 import com.mini.cti.dto.ErrorResponseDTO;
 import com.mini.cti.dto.UpdateVulnerabilitiesDTO;
-import com.mini.cti.model.CisaKev;
+import com.mini.cti.mapper.MapperEntityToDTO;
 import com.mini.cti.service.CisaKevService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 public class CisaKevRestController {
 
     private final CisaKevService cisaKevService;
+    private final MapperEntityToDTO mapperEntityToDTO;
 
 
     @Operation(
@@ -50,7 +52,7 @@ public class CisaKevRestController {
                 description = "Results returned successfully",
                 content = @Content(
                         mediaType = "application/json",
-                        schema = @Schema(implementation = CisaKev.class)
+                        schema = @Schema(implementation = CisaKevDTO.class)
                 )
         ),
         @ApiResponse(
@@ -79,7 +81,7 @@ public class CisaKevRestController {
         )
     })
     @GetMapping
-    public ResponseEntity<Page<CisaKev>> getAllVulnerabilitiesPaginated(
+    public ResponseEntity<Page<CisaKevDTO>> getAllVulnerabilitiesPaginated(
 
             @Parameter(description = "Page number, zero based", example = "0")
             @RequestParam(defaultValue = "0") int page,
@@ -90,7 +92,7 @@ public class CisaKevRestController {
             @Parameter(description = "Sort field and direction", example = "dateAdded,desc")
             @RequestParam(defaultValue = "dateAdded,desc") String sort
     ){
-        Page<CisaKev> vulnerabilities = cisaKevService.getAllVulnerabilitiesPaginated(page, size, sort);
+        Page<CisaKevDTO> vulnerabilities = cisaKevService.getAllVulnerabilitiesPaginated(page, size, sort);
         return ResponseEntity.ok(vulnerabilities);
     }
 
@@ -100,8 +102,8 @@ public class CisaKevRestController {
     // TODO future option for user to lookup for CVE by the ID
     @Operation(hidden = true)
     @GetMapping("/{cveID}")
-    public ResponseEntity<CisaKev> getVulnerabilityByCveId(@PathVariable String cveID) {
-        CisaKev vulnerability = cisaKevService.getVulnerabilityByCveId(cveID);
+    public ResponseEntity<CisaKevDTO> getVulnerabilityByCveId(@PathVariable String cveID) {
+        CisaKevDTO vulnerability = mapperEntityToDTO.toDTO(cisaKevService.getVulnerabilityByCveId(cveID));
         return ResponseEntity.ok(vulnerability);
     }
 

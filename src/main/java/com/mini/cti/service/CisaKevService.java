@@ -5,11 +5,13 @@ import com.mini.cti.core.exceptions.VulnerabilityNotFoundException;
 import com.mini.cti.dto.CisaKevDTO;
 import com.mini.cti.dto.CisaKevResponseDTO;
 import com.mini.cti.mapper.Mapper;
+import com.mini.cti.mapper.MapperEntityToDTO;
 import com.mini.cti.model.CisaKev;
 import com.mini.cti.repository.CisaKevRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -65,6 +67,8 @@ public class CisaKevService {
     /** Mapper for converting between DTOs and entities. */
     private final Mapper mapper;
 
+    private final MapperEntityToDTO mapperEntityToDto;
+
     /** Repository for CISA KEV database operations. */
     private final CisaKevRepository cisaKevRepository;
 
@@ -73,7 +77,7 @@ public class CisaKevService {
      * Fetches the complete CISA Known Exploited Vulnerabilities catalog from the public API.
      *
      * This method makes an HTTP GET request to the CISA KEV JSON feed endpoint
-     * and deserializes the response into a {@link CisaKevDTO} object containing
+     * and deserializes the response into a {@link com.mini.cti.dto.CisaKevDTO} object containing
      * metadata and a list of all known exploited vulnerabilities.
      *
      * Performance consideration: The response typically contains 1000+ vulnerabilities
@@ -115,7 +119,7 @@ public class CisaKevService {
      *
      * @param dtos list of vulnerability DTOs fetched from the CISA API
      * @throws IllegalArgumentException if dtos is null or empty
-     * @throws org.springframework.dao.DataIntegrityViolationException if unique constraint
+     * @throws DataIntegrityViolationException if unique constraint
      *         violations occur (e.g., duplicate cveID)
      *
      * @see CisaKevDTO
@@ -128,7 +132,7 @@ public class CisaKevService {
         // Load all existing vulnerabilities and build lookup map
         List<CisaKev> existingEntities = cisaKevRepository.findAll();
 
-        Map<String,CisaKev> existingMap = existingEntities.stream()
+        Map<String, CisaKev> existingMap = existingEntities.stream()
                 .collect(Collectors.toMap(
                         CisaKev::getCveID,
                         entity -> entity
@@ -258,7 +262,7 @@ public class CisaKevService {
 
     @Transactional(readOnly = true)
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public Page<CisaKev> getAllVulnerabilitiesPaginated(int page, int size, String sortStr) {
+    public Page<CisaKevDTO> getAllVulnerabilitiesPaginated(int page, int size, String sortStr) {
 
         // Parse sort string
         String[] sortParams = sortStr.split(",");
@@ -270,6 +274,6 @@ public class CisaKevService {
         // Create Pageable
         Pageable pageable = PageRequest.of(page,size,Sort.by(direction, field));
 
-        return cisaKevRepository.findAll(pageable);
+        return cisaKevRepository.findAll(pageable).map(mapperEntityToDto::toDTO);
     }
 }
