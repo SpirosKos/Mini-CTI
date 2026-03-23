@@ -26,6 +26,7 @@ Mini-CTI is a specialized portal for Cyber Threat Intelligence, designed to help
 - **Java 21** / **Spring Boot 3.5**
 - **Spring Security** — stateless JWT authentication
 - **Spring Data JPA** — PostgreSQL persistence
+- **MapStruct** — Type-safe DTO mapping
 - **Lombok**, **Jakarta Validation**, **Spring Dotenv**
 - **OpenAPI / Swagger UI** — interactive API docs
 
@@ -179,6 +180,7 @@ mini-cti/
 │   ├── core/           # Exception handling & Globals
 │   ├── dto/            # Records for Data Transfer
 │   ├── model/          # JPA Entities
+│   ├── mapper/         # Data Mapping (MapStruct & Manual)
 │   ├── repository/     # Spring Data Repositories
 │   └── service/        # Business Logic
 ├── frontend/           # React 19 + Tailwind 4 App
