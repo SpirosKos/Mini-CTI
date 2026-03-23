@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.UUID;
 
+@Tag(name = "Authentication", description = "User registration and login.")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -106,7 +108,7 @@ public class UserRestController {
             description ="A register user can login to system.")
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "201",
+                    responseCode = "200",
                     description = "Successfully login, returns token.",
                     content = @Content(
                             mediaType = "application/json",
@@ -165,6 +167,7 @@ public class UserRestController {
 
 
     // TODO For a future service and prevent users to inject another users UUID
+    @Operation(hidden = true)
     @GetMapping("/users/{uuid}")
     public ResponseEntity<UserResponseDTO> getUserByUUID(@PathVariable UUID uuid) throws UserNotFoundException {
         UserResponseDTO responseDTO = iUserService.getUserByUUID(uuid);

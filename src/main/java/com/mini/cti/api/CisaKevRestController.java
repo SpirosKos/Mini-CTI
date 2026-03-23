@@ -1,16 +1,24 @@
 package com.mini.cti.api;
 
 
+import com.mini.cti.dto.CisaKevDTO;
+import com.mini.cti.dto.CisaKevResponseDTO;
+import com.mini.cti.dto.ErrorResponseDTO;
+import com.mini.cti.dto.UpdateVulnerabilitiesDTO;
 import com.mini.cti.model.CisaKev;
 import com.mini.cti.service.CisaKevService;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
 
@@ -23,6 +31,8 @@ import java.util.Map;
  * @author Mini-CTI Team
  * @version 1.0
  */
+@Tag(name = "CISA-KEV", description = "Import and Update CVE's from CISA-KEV")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/cisa-kev")
@@ -31,6 +41,44 @@ public class CisaKevRestController {
     private final CisaKevService cisaKevService;
 
 
+    @Operation(
+            summary = "Vulnerabilities from Cisa-Kev",
+            description = "Import-Update vulnerabilities from Cisa-Kev in JSON"
+    )
+    @ApiResponses({
+        @ApiResponse(
+                responseCode = "200",
+                description = "CVE's imported successfully",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = CisaKevResponseDTO.class)
+                )
+        ),
+        @ApiResponse(
+                responseCode = "401",
+                description = "Not authenticated",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class)
+                )
+        ),
+        @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class)
+                )
+        ),
+        @ApiResponse(
+                responseCode = "500",
+                description = "Internal Server error.",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class)
+                )
+        )
+    })
     @GetMapping
     public ResponseEntity<Page<CisaKev>> getAllVulnerabilitiesPaginated(
             @RequestParam(defaultValue = "0") int page,
@@ -42,6 +90,10 @@ public class CisaKevRestController {
     }
 
 
+
+
+    // TODO future option for user to lookup for CVE by the ID
+    @Operation(hidden = true)
     @GetMapping("/{cveID}")
     public ResponseEntity<CisaKev> getVulnerabilityByCveId(@PathVariable String cveID) {
         CisaKev vulnerability = cisaKevService.getVulnerabilityByCveId(cveID);
@@ -65,21 +117,48 @@ public class CisaKevRestController {
      * @return ResponseEntity with success/error message
      * @throws com.mini.cti.core.exceptions.CisaApiException if the CISA API is unavailable
      */
+    @Operation(
+            summary = "Update CVE's",
+            description = "Manual database update with newest CVE's from Admin"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "CVE's updated successfully in DB",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = UpdateVulnerabilitiesDTO.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Not authenticated",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponseDTO.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Not found",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+        @ApiResponse(
+        responseCode = "500",
+        description = "Internal Server error.",
+        content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponseDTO.class)
+            )
+        )
+    })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/update")
-    public ResponseEntity<Map<String, String>> manualUpdate() {
-
-        try {
+    public ResponseEntity<UpdateVulnerabilitiesDTO> manualUpdate() {
             cisaKevService.updateDatabase();
-            return ResponseEntity.ok(Map.of(
-                    "status","Success",
-                    "message", "CISA KEV update triggered successfully"
-            ));
-        }catch (Exception e){
-            return ResponseEntity.status(500).body(Map.of(
-                    "status", "error",
-                    "message", "Update" + e.getMessage()
-            ));
-        }
+            return ResponseEntity.ok(new UpdateVulnerabilitiesDTO("Success", "Database CVE's updated successfully"));
     }
 }
