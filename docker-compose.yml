@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-minicti}
+      POSTGRES_USER: ${POSTGRES_USER:-cf9}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Coding571!}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cf9} -d ${POSTGRES_DB:-minicti}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mini-cti
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-minicti}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-cf9}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-Coding571!}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mini-cti-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- localhost:80 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+volumes:
+  postgres_data:
