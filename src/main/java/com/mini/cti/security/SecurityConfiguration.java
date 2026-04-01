@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET,"/api/v1/ip-lookup/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/v1/cisa-kev/**").hasAnyRole("ADMIN","USER")
                         .requestMatchers(HttpMethod.POST,"/api/v1/cisa-kev/update/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/actuator/health").permitAll()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
