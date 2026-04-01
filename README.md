@@ -108,6 +108,34 @@ npm run dev
 
 ---
 
+### 🐳 Docker Deployment
+
+The project is fully containerized using **Docker** and **Docker Compose** for easy setup and consistent environments across development and production.
+
+#### 🛠️ Services Overview
+
+-   **`db` (PostgreSQL):** Uses `postgres:18-alpine`. Persistent data is stored in the `postgres_data` volume. It's configured with a health check to ensure the database is ready before the application starts.
+-   **`app` (Spring Boot):** The backend service built using `amazoncorretto:21`. It connects to the `db` service and depends on its health.
+-   **`frontend` (React + Nginx):** A multi-stage build that compiles the React 19 application and serves the static files using **Nginx 1.29-alpine**. It listens on port `80`.
+
+#### 🚀 Running with Docker Compose
+
+1.  **Ensure you have Docker and Docker Compose installed.**
+2.  **Build the backend JAR:**
+    ```bash
+    ./gradlew clean bootJar
+    ```
+3.  **Start all services:**
+    ```bash
+    docker-compose up -d --build
+    ```
+4.  **Access the applications:**
+    -   **Frontend:** `http://localhost`
+    -   **Backend API:** `http://localhost:8080`
+    -   **Swagger UI:** `http://localhost:8080/swagger-ui/index.html`
+
+---
+
 ### 📘 API Overview
 
 Base path: `/api/v1`
@@ -198,7 +226,7 @@ Explore the interactive API documentation at:
 
 ### 🔮 Future Enhancements
 
-- [ ] **Dockerization:** Containerizing the app for easier deployment.
+- [x] **Dockerization:** Containerizing the app for easier deployment.
 - [ ] **Email Notifications:** Alerting users on new critical CVEs.
 - [ ] **Dashboard Visualization:** Adding charts and metrics.
 - [ ] **Redis Caching:** Implementing caching for IP lookup requests.
