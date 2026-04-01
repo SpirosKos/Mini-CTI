@@ -83,20 +83,6 @@ export default function RegisterForm({
           </button>
         </form>
 
-        <div className="relative my-8">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800"></div></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#0f172a] px-2 text-slate-500 font-bold">Or continue with</span></div>
-        </div>
-
-        <div className="space-y-3">
-          <button className="flex items-center justify-center gap-3 w-full bg-slate-800/40 hover:bg-slate-800 border border-slate-700 text-white py-3 rounded-lg transition-all">
-            <Github size={20} /> GitHub
-          </button>
-          <button className="flex items-center justify-center gap-3 w-full bg-slate-800/40 hover:bg-slate-800 border border-slate-700 text-white py-3 rounded-lg transition-all">
-            <Mail size={20} /> Google
-          </button>
-        </div>
-
         <p className="text-center text-slate-400 text-sm mt-8">
           Already have an account? <span onClick={onBackToLogin} className="text-sky-400 cursor-pointer hover:underline">Sign In</span>
         </p>
