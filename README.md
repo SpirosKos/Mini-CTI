@@ -77,6 +77,23 @@ The active profile is `dev` by default. Settings live in `src/main/resources/app
 | VirusTotal API Key | - | `VIRUSTOTAL_API_KEY` |
 | VirusTotal Base URL | - | `VIRUSTOTAL_BASE_URL` |
 | CISA KEV Base URL | - | `CISAKEV_BASE_URL` |
+| Allowed Origins | `*` (dev default) | `ALLOWED_ORIGINS` |
+
+---
+
+### 🔑 Initial Access & Data Seeding
+
+To get started with the application, you must follow this specific sequence:
+
+1.  **Admin Login:** Use the default administrator credentials seeded in the database:
+    *   **Email:** `admin@admin-cti.com`
+    *   **Password:** `secretPass123@`
+2.  **Manual Data Ingestion:** After logging in as admin, you **must** trigger a manual update to fetch the CISA KEV vulnerabilities into the local database:
+    *   Call the `POST /api/v1/cisa-kev/update` endpoint (available via Swagger UI).
+3.  **User Access:** Once the database is populated, you can register new users or login to explore the dashboard.
+
+> [!IMPORTANT]
+> **CVE Refresh Policy:** While you can manually trigger updates as an admin, the system includes a **cron job** that automatically synchronizes with the official CISA KEV feed every weekday at **8:00 AM**. Subsequent refreshes of the CVE list in the UI reflect the state of the local database.
 
 ---
 
@@ -116,7 +133,7 @@ The project is fully containerized using **Docker** and **Docker Compose** for e
 
 -   **`db` (PostgreSQL):** Uses `postgres:18-alpine`. Persistent data is stored in the `postgres_data` volume. It's configured with a health check to ensure the database is ready before the application starts.
 -   **`app` (Spring Boot):** The backend service built using `amazoncorretto:21`. It connects to the `db` service and depends on its health.
--   **`frontend` (React + Nginx):** A multi-stage build that compiles the React 19 application and serves the static files using **Nginx 1.29-alpine**. It listens on port `80`.
+-   **`frontend` (React + Nginx):** A multi-stage build using `node:24.14-alpine` to compile the React 19 application and `nginx:1.29-alpine` to serve the static files. It listens on port `80`.
 
 #### 🚀 Running with Docker Compose
 
@@ -169,6 +186,12 @@ Base path: `/api/v1`
 |---|---|---|---|
 | GET | `/cisa-kev` | Bearer | List vulnerabilities (paginated) |
 | POST | `/cisa-kev/update` | ADMIN | Manually trigger database update |
+
+---
+
+### 🔐 Security & CORS
+
+The application implements a secure CORS policy managed via Spring Security. Allowed origins must be explicitly defined in the `.env` file or environment variables (`ALLOWED_ORIGINS`). For production environments, ensure this is restricted to your specific frontend domain.
 
 ---
 
