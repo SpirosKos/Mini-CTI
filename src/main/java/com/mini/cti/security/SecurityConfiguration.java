@@ -42,7 +42,7 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
 
-    @Value("${allowed-origins}")
+    @Value("${allowed.origins}")
     private List<String> allowedOrigins;
 
     @Bean
